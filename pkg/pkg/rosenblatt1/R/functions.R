@@ -43,8 +43,7 @@ importBetaMriImages<- function(files, ...){
 	for(i in seq_along(files)){
 		all.scans[, , , i]<- subject.arrays[[i]]$getData()		
 	}
-	
-	
+		
 	return(all.scans)
 	
 	
