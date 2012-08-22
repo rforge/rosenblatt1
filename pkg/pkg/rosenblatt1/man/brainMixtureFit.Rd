@@ -56,7 +56,8 @@
 \examples{
 data(VinkData)
 \dontrun{
-	### No need to run. Output already in VinkDataFit in order to save time.
+	No need to run. 
+	Output already in VinkDataFit in order to save time.
 	test.brain.fit<- brainMixtureFit(scans, fit.control = generateMixtureControl())
 }
 data(VinkDataFit)

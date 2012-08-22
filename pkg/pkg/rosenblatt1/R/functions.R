@@ -1,4 +1,5 @@
 # TODO: C) Create import function for DICOM format.
+# TODO: A) Add estimation with my own EM.
 
 # Author: Jonathan Rosenblatt john.ros@gmail.com
 ###############################################################################
@@ -56,7 +57,7 @@ importBetaMriImages<- function(files, ...){
 	for(i in seq_along(files)){
 		subject.arrays[[i]]<- newMriImageFromFile(files[i], ...)
 		# Test all scans have the same dimensions:
-		if(any(.test.dimentions!= subject.arrays[[i]]$getDimensions())) { error('Arrays with different resolutions')}
+		if(any(.test.dimentions!= subject.arrays[[i]]$getDimensions())) { stop('Arrays with different resolutions')}
 	}
 	
 	return(subject.arrays)
@@ -569,7 +570,7 @@ MriImage2Array<- function(MRImage.list){
 #' lapply(test.brain.fit, function(x) x$getData()[20,20,20])
 #' @export
 brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl(), ...){
-	# TODO: B) Finish mixture fitting function.
+	# TODO: B) Fix progress bad to include imputation as well.
 	
 	## Verify input:
 	stopifnot(is.list(MRImage.list) && class(MRImage.list[[1]])=="MriImage" ) 
