@@ -104,11 +104,21 @@ importBetaMriImages<- function(files, ...){
 #' @export
 generateMixtureControl<- function(
 		numericThresh= -18, 
-		minObservations= 15 # minimum number of observations for estimation
+		minObservations= 15, # minimum number of observations for estimation
+		iteration.limit=100,
+		null.iteration.limit=1000,
+		roundTolerance= 15,
+		RandomStarts= 5,
+		Resolution= 10
 ){	
 	return(list(
 					numericThresh= numericThresh, 	
-					minObservations= minObservations
+					minObservations= minObservations,
+					iteration.limi=iteration.limit,
+					null.iteration.limit=null.iteration.limit,
+					roundTolerance=roundTolerance,
+					RandomStarts=RandomStarts,
+					Resolution=Resolution	
 			))	
 }
 
@@ -189,6 +199,7 @@ pointWiseMixtureFit<- function(beta.vector, fit.control, progress){
 	# Initialize output:
 	if(!missing(progress)) { setTxtProgressBar(progress, getTxtProgressBar(progress)+1)	}
 	
+	# TODO: A) replace with initializeOutput()
 	output.names<-c(
 			"initial.p1", "initial.p2", "initial.p3", "initial.mu", "initial.A", "initial.B", "initial.C",
 			"p1.1", "p2.1", "p3.1",
@@ -570,7 +581,6 @@ MriImage2Array<- function(MRImage.list){
 #' lapply(test.brain.fit, function(x) x$getData()[20,20,20])
 #' @export
 brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl(), ...){
-	# TODO: B) Fix progress bad to include imputation as well.
 	
 	## Verify input:
 	stopifnot(is.list(MRImage.list) && class(MRImage.list[[1]])=="MriImage" ) 
