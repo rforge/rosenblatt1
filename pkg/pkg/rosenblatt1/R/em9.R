@@ -1,4 +1,4 @@
-# TODO: A) Use EM9 as solver as well. 
+# TODO: A) Test solver on more data. 
 # 
 # Author: johnros
 ###############################################################################
@@ -149,7 +149,7 @@ generateHybridParams<- function(resolution, moments, fit.control){
 
 
 # replaces likelihoodem9.c
-dyn.load('/home/johnros/workspace/MixtureRandomEffects/trunk/likelihood.so')
+#dyn.load('/home/johnros/workspace/MixtureRandomEffects/trunk/likelihood.so')
 
 likelihood.c<- function(p1, p2, p3, mu, A, B, C, beta.vector,...){
 	.result<- NA
@@ -603,7 +603,7 @@ check.location<- function(params, beta.vector, fit.control){
 	names(result)<- names(params)	
 	try(
 			result<- iterate3MixtureFitFast(
-					initial=params, 
+					initial.params=params, 
 					beta.vector = beta.vector, 
 					fit.control = fit.control, 
 					iteration.limit = 5, # number of iterations before choosing initialization point 
@@ -687,7 +687,8 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 
 
 	## First-- try to solve unconstrained:
-	temp.result<-iterate3MixtureFitFast(initial=initial, 
+	temp.result<-iterate3MixtureFitFast(
+			initial.params=initial, 
 			beta.vector=beta.vector,			 
 			iteration.limit=fit.control$iteration.limit, 
 			constrained = FALSE,
@@ -699,7 +700,7 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	p3.bound<- p3Bound(temp.result[['mu.1']], temp.result[['A.1']], temp.result[['B.1']], n=n, fit.control=fit.control)
 	if(temp.result[['p3']] > p3.bound ){		
 		temp.result<- iterate3MixtureFitFast(
-				initial=initial,		
+				initial.params=initial,		
 				beta.vector=beta.vector,				 
 				iteration.limit=fit.control$iteration.limit, 
 				constrained = TRUE,
@@ -950,8 +951,7 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 
 
 
-
-brainMixtureFitFast<- function(MRImage.list, fit.control= generateMixtureControl(), ...){
+brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	
 	## Verify input:
 	stopifnot(is.list(MRImage.list) && class(MRImage.list[[1]])=="MriImage" ) 
@@ -974,10 +974,7 @@ brainMixtureFitFast<- function(MRImage.list, fit.control= generateMixtureControl
 	warn <- options(warn = 2)
 	
 	
-	
-	
-	
-	
+		
 	## Fit- first step
 	pointwise<- function(beta.vector) {
 		unlist(pointWiseMixtureFitFast(beta.vector = beta.vector, fit.control = fit.control, progress=progress.bar))
@@ -990,10 +987,11 @@ brainMixtureFitFast<- function(MRImage.list, fit.control= generateMixtureControl
 	
 	
 	# TODO: B) Add imputation and smoothing before re-estimation + check which solution has highest likelihood
-	
 	## Smooth estimates:
 	# impute array before smoothing
 	# smooth estimates
+	
+	
 	smoothed.fit<- first.fit
 		
 	## Second fit:
@@ -1023,16 +1021,15 @@ brainMixtureFitFast<- function(MRImage.list, fit.control= generateMixtureControl
 	
 }
 ## Testing:
-require(tractor.base)
-setwd('~/Projects/MRI/Data/Vink/data_vink_2010/cons_no_smooth')
-(files<- grep("con.*img", list.files(), value=T))
-(files<- sub('\\.img', "", files))
-scans<- importBetaMriImages(files, fileType='NIFTI')
-test.brain.fit<- brainMixtureFitFast(scans, fit.control = generateMixtureControl())
-x11()
-createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
-image(test.brain.fit[["p3.1"]]$getData()[,,26])
-#save(test.brain.fit, file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkDataFit.Rdata")
-#load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.Rdata")
-lapply(test.brain.fit, function(x) x$getData()[20,20,20])
+#require(tractor.base)
+#load('/home/johnros/workspace/MixtureRandomEffects/pkg/rosenblatt1/data/VinkData.RData')
+#system.time(test.brain.fit<- brainMixtureFit(scans, generateMixtureControl()))
+#	
+#x11()
+#createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
+#image(test.brain.fit[["p3.1"]]$getData()[,,26])
+##save(test.brain.fit, file="/home/johnros/workspace/MixtureRandomEffects/pkg/rosenblatt1/data/VinkDataFit.RData")
+##load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.RData")
+#lapply(test.brain.fit, function(x) x$getData()[20,20,20])
+
 

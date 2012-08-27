@@ -15,4 +15,3 @@ van Buuren, Mariet, Matthijs Vink, Anca E. Rapcencu, and Rene S. Kahn.
 "Exaggerated Brain Activation During Emotion Processing in Unaffected Siblings of Patients with Schizophrenia." 
 Biological Psychiatry 70, no. 1 (July 1, 2011): 81–87. \cr
 }
-

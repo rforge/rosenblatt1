@@ -1,9 +1,9 @@
-\name{brainMixtureFit}
-\alias{brainMixtureFit}
+\name{brainMixtureFit2}
+\alias{brainMixtureFit2}
 \title{Fits a mixture models to a group SPM{beta}}
 \usage{
-  brainMixtureFit(MRImage.list,
-    fit.control = generateMixtureControl(), ...)
+  brainMixtureFit2(MRImage.list,
+    fit.control = generateMixtureControl())
 }
 \arguments{
   \item{MRImage.list}{List of Mriimage objects. All assumed
@@ -12,35 +12,27 @@
 
   \item{fit.control}{List of control parameters generated
   by \code{\link{generateMixtureControl}}}
-
-  \item{...}{Deprecated}
 }
 \value{
   List of MriImage objects. Each holding the SPM of a
-  different parameters: \item{initial.p1}{Deprecated}
-  \item{initial.p2}{Deprecated}
-  \item{initial.p3}{Deprecated}
-  \item{initial.mu}{Deprecated}
-  \item{initial.A}{Deprecated} \item{initial.B}{Deprecated}
-  \item{initial.C}{Deprecated} \item{p1.1}{Estimate of
-  \emph{full} mixture parameters.} \item{p2.1}{Estimate of
-  \emph{full} mixture parameters.} \item{p3.1}{Estimate of
-  \emph{full} mixture parameters.} \item{mu.1}{Estimate of
-  \emph{full} mixture parameters.} \item{A.1}{Estimate of
-  \emph{full} mixture parameters.} \item{B.1}{Estimate of
-  \emph{full} mixture parameters.} \item{C.1}{Estimate of
-  \emph{full} mixture parameters.}
+  different parameters: 
+  \item{p1.1}{Estimate of \emph{full} mixture parameters.}
+  \item{p2.1}{Estimate of \emph{full} mixture parameters.} 
+  \item{p3.1}{Estimate of \emph{full} mixture parameters.} 
+  \item{mu.1}{Estimate of \emph{full} mixture parameters.} 
+  \item{A.1}{Estimate of \emph{full} mixture parameters.} 
+  \item{B.1}{Estimate of \emph{full} mixture parameters.} 
+  \item{C.1}{Estimate of \emph{full} mixture parameters.} 
   \item{likelihood.1}{\emph{Full} maximal likelihood.}
-  \item{p3.bound}{Maximal allowed value for p.3 given other
-  parameter estimates. Serves to check if parameter space
-  constraints are violated.} \item{p1.0}{Estimate of
-  \emph{null} mixture parameters.} \item{p2.0}{Estimate of
-  \emph{null} mixture parameters.} \item{A.0}{Estimate of
-  \emph{null} mixture parameters.} \item{B.0}{Estimate of
-  \emph{null} mixture parameters.}
+  \item{p3.bound}{Deprecated.} 
+  \item{p1.0}{Estimate of \emph{null} mixture parameters.} 
+  \item{p2.0}{Estimate of \emph{null} mixture parameters.} 
+  \item{A.0}{Estimate of \emph{null} mixture parameters.} 
+  \item{B.0}{Estimate of \emph{null} mixture parameters.}
   \item{likelihood.0}{\emph{Null} maximal likelihood}
-  \item{n}{Sample size.}
-
+  \item{n}{Sample size.} 
+}
+\description{
   Given a list of MriImage objects-- all registered to a
   common template-- the function will fit a mixture model
   at each voxel and return an array of the voxel-wise
@@ -49,9 +41,6 @@
   parametrized as: \deqn{p_1 \phi_{0,\sigma_1}+p_2
   \phi_{0,\sigma_2}+p_3 \phi_{\mu,\sigma_3} } where
   \eqn{\phi_{\mu,\sigma}} is the Gaussian PDF.
-}
-\description{
-  Fits a mixture models to a group SPM{beta}
 }
 \examples{
 data(VinkData)

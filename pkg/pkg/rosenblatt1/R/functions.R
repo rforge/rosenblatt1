@@ -1,50 +1,49 @@
 # TODO: C) Create import function for DICOM format.
-# TODO: A) Add estimation with my own EM.
 
 # Author: Jonathan Rosenblatt john.ros@gmail.com
 ###############################################################################
-#' Fit mixture models to fMRI group studies.
-#' 
-#' \tabular{ll}{
-#' Package: \tab rosenblatt1\cr
-#' Type: \tab Package\cr
-#' Version: \tab 0.5\cr
-#' Date: \tab 2012-08-19\cr
-#' License: \tab GPL (>= 2)\cr
-#' }
-#' 
-#' Mixture model fitting for random effect in fMRI group studies.
-#'
-#' @name rosenblatt1-package
-#' @aliases rosenblatt1
-#' @docType package
-#' @title Fit mixture models to fMRI group studies
-#' @include tractor.base
-#' @include mixtools
-#' @author Jonathan Rosenblatt 
-NA
+##' Fit mixture models to fMRI group studies.
+##' 
+##' \tabular{ll}{
+##' Package: \tab rosenblatt1\cr
+##' Type: \tab Package\cr
+##' Version: \tab 0.5\cr
+##' Date: \tab 2012-08-19\cr
+##' License: \tab GPL (>= 2)\cr
+##' }
+##' 
+##' Mixture model fitting for random effect in fMRI group studies.
+##'
+##' @name rosenblatt1-package
+##' @aliases rosenblatt1
+##' @docType package
+##' @title Fit mixture models to fMRI group studies
+##' @include tractor.base
+##' @include mixtools
+##' @author Jonathan Rosenblatt 
+#NA
 
 
 
 
 
 
-
-#' Function imoprting a directory with scans in all formats except DICOM:
-#' 
-#' @param files A list of file names with full path. 
-#' @param ... Arguments passed to \code{\link{newMriImageFromFile}}
-#' @return A list containin an \code{\link{MriImage}} class object for each file in the input.
-#' 
-#' The function is a convinience wrapper around \code{\link{newMriImageFromFile}}. It recieves a list of medical imaging files (in the formats supported by \code{\link{newMriImageFromFile}}) and return a list of \code{\link{MriImage}} objects-- one for each file supplied.
-#' 
-#' @author Jonathan Rosenblatt 
-#' @examples 
-#' files<- grep("con.*img", list.files(), value=T)
-#' files<- sub('\\.img', "", files)
-#' scans<- importBetaMriImages(files, fileType='NIFTI')
-#' class(scans[[1]])
-#' @export
+#
+##' Function imoprting a directory with scans in all formats except DICOM:
+##' 
+##' @param files A list of file names with full path. 
+##' @param ... Arguments passed to \code{\link{newMriImageFromFile}}
+##' @return A list containin an \code{\link{MriImage}} class object for each file in the input.
+##' 
+##' The function is a convinience wrapper around \code{\link{newMriImageFromFile}}. It recieves a list of medical imaging files (in the formats supported by \code{\link{newMriImageFromFile}}) and return a list of \code{\link{MriImage}} objects-- one for each file supplied.
+##' 
+##' @author Jonathan Rosenblatt 
+##' @examples 
+##' files<- grep("con.*img", list.files(), value=T)
+##' files<- sub('\\.img', "", files)
+##' scans<- importBetaMriImages(files, fileType='NIFTI')
+##' class(scans[[1]])
+##' @export
 importBetaMriImages<- function(files, ...){
 	# Verify input:
 	#~~~
@@ -94,14 +93,14 @@ importBetaMriImages<- function(files, ...){
 
 
 
-
-#' Generates a list of control arguments.
-#' @param numericThresh Numeric value.  
-#' @param minObservations Minimal number of observation to attempt fitting.
-#' @return List with control parameters for \code{\link{brainMixtureFit}}
-#' 
-#' @author Jonathan Rosenblatt 
-#' @export
+#
+##' Generates a list of control arguments.
+##' @param numericThresh Numeric value.  
+##' @param minObservations Minimal number of observation to attempt fitting.
+##' @return List with control parameters for \code{\link{brainMixtureFit}}
+##' 
+##' @author Jonathan Rosenblatt 
+##' @export
 generateMixtureControl<- function(
 		numericThresh= -18, 
 		minObservations= 15, # minimum number of observations for estimation
@@ -142,15 +141,15 @@ generateMixtureControl<- function(
 
 
 
-
-#' Map mixtools output to simple vector
-#' @param mixedtools.output Output of \code{\link{normalmixEM}}. List of class \emph{mixEM}.  
-#' @param result The vector to be returned with \code{\link{normalmixEM}} output
-#' @param model Character vector specifying the type of model fitted with \code{\link{normalmixEM}}. 
-#' @return Vector of voxel-wise parameter estimates.
-#' Utility function for \code{\link{pointWiseMixtureFit}}
-#' @author Jonathan Rosenblatt 
-#' @export
+#
+##' Map mixtools output to simple vector
+##' @param mixedtools.output Output of \code{\link{normalmixEM}}. List of class \emph{mixEM}.  
+##' @param result The vector to be returned with \code{\link{normalmixEM}} output
+##' @param model Character vector specifying the type of model fitted with \code{\link{normalmixEM}}. 
+##' @return Vector of voxel-wise parameter estimates.
+##' Utility function for \code{\link{pointWiseMixtureFit}}
+##' @author Jonathan Rosenblatt 
+##' @export
 mixedtools2result<- function(mixedtools.output, result, model){
 	
 	# Preparing output for **full** model:
@@ -187,15 +186,15 @@ mixedtools2result<- function(mixedtools.output, result, model){
 
 
 
-
-#' Pointwise fitting of group mixture
-#' @param beta.vector Numeric vector of estimated contrasts. One per subject.
-#' @param fit.control List of control parameters generated by \code{\link{generateMixtureControl}} 
-#' @param progress A connection object to a progress bar. 
-#' @return Numeric vector with estimates of mixture parameters.
-#' 
-#' @author Jonathan Rosenblatt 
-#' @export
+#
+##' Pointwise fitting of group mixture
+##' @param beta.vector Numeric vector of estimated contrasts. One per subject.
+##' @param fit.control List of control parameters generated by \code{\link{generateMixtureControl}} 
+##' @param progress A connection object to a progress bar. 
+##' @return Numeric vector with estimates of mixture parameters.
+##' 
+##' @author Jonathan Rosenblatt 
+##' @export
 pointWiseMixtureFit<- function(beta.vector, fit.control, progress){
 	# Verify intput:
 	stopifnot(is.numeric(beta.vector))
@@ -234,7 +233,7 @@ pointWiseMixtureFit<- function(beta.vector, fit.control, progress){
 				output<- mixedtools2result(temp.result.three.components, output, model="full")
 				
 								
-				p3.bound<- p3Bound(p1=output[['p1.1']], mu=output[['mu.1']], A=output[['A.1']], B=output[['B.1']], n=output[['n']], fit.control=fit.control)
+				p3.bound<- p3Bound(mu=output[['mu.1']], A=output[['A.1']], B=output[['B.1']], n=output[['n']], fit.control=fit.control)
 				output[['p3.bound']]<- p3.bound
 				
 				if(output[['p3.1']] > p3.bound) {
@@ -272,16 +271,16 @@ pointWiseMixtureFit<- function(beta.vector, fit.control, progress){
 
 
 
-
-#' Voxelwise fit of *three* component mixture
-#' @param beta.vector Nuemric (cleaned) vector of beta estimates.
-#' @param fit.control 
-#' @return An \link{mixEM} class object of the three component mixture fit.
-#' 
-#' @author Jonathan Rosenblatt 
-#' @examples 
-#'.data<- na.omit(scans[20,20,20,])
-#'(output.3<- pointWise3MixtureFit(.data, fit.control= generateMixtureControl()))
+#
+##' Voxelwise fit of *three* component mixture
+##' @param beta.vector Nuemric (cleaned) vector of beta estimates.
+##' @param fit.control 
+##' @return An \link{mixEM} class object of the three component mixture fit.
+##' 
+##' @author Jonathan Rosenblatt 
+##' @examples 
+##'.data<- na.omit(scans[20,20,20,])
+##'(output.3<- pointWise3MixtureFit(.data, fit.control= generateMixtureControl()))
 pointWise3MixtureFit<- function(beta.vector, fit.control){
 	
 	temp.result<- normalmixEM(beta.vector, k=3, mean.constr = c(0,0,NA), verb=FALSE )
@@ -308,18 +307,18 @@ pointWise3MixtureFit<- function(beta.vector, fit.control){
 
 
 
-# Function for pointwise fitting null model:
-#' #' Voxelwise fit of *two* component mixture
-#' @param beta.vector Nuemric (cleaned) vector of beta estimates
-#' @param fit.control 
-#' @param three.component.fit Output of \link{pointWise3MixtureFit} as initialization.
-#' @return  An \link{mixEM} class object of the two component mixture fit.
-#' 
-#' @author Jonathan Rosenblatt 
-#' @examples 
-#'.data<- na.omit(scans[20,20,20,])
-#'output.3<- pointWise3MixtureFit(.data, fit.control= generateMixtureControl())
-#'(output.2<- pointWise2MixtureFit(.data, fit.control= generateMixtureControl(), three.component.fit = output.3))
+
+##' #' Voxelwise fit of *two* component mixture
+##' @param beta.vector Nuemric (cleaned) vector of beta estimates
+##' @param fit.control 
+##' @param three.component.fit Output of \link{pointWise3MixtureFit} as initialization.
+##' @return  An \link{mixEM} class object of the two component mixture fit.
+##' 
+##' @author Jonathan Rosenblatt 
+##' @examples 
+##'.data<- na.omit(scans[20,20,20,])
+##'output.3<- pointWise3MixtureFit(.data, fit.control= generateMixtureControl())
+##'(output.2<- pointWise2MixtureFit(.data, fit.control= generateMixtureControl(), three.component.fit = output.3))
 pointWise2MixtureFit<- function(beta.vector, fit.control, three.component.fit){
 	renormalize.lambda<- three.component.fit$lambda[c(1,2)] / sum(three.component.fit$lambda[c(1,2)])
 	temp.result<- normalmixEM(beta.vector, k=2, mean.constr = c(0,0), verb=FALSE, lambda=renormalize.lambda , mu=c(0,0), sigma=three.component.fit$sigma[c(1,2)] )
@@ -354,15 +353,15 @@ pointWise2MixtureFit<- function(beta.vector, fit.control, three.component.fit){
 
 
 
-
-#' Generate matrix of neighbouring indexes for brain image imputation
-#' 
-#' @param i 
-#' @param j 
-#' @param k 
-#' @return Matrix of neighbouring voxel indexes.
-#' 
-#' @author Jonathan Rosenblatt 
+#
+##' Generate matrix of neighbouring indexes for brain image imputation
+##' 
+##' @param i 
+##' @param j 
+##' @param k 
+##' @return Matrix of neighbouring voxel indexes.
+##' 
+##' @author Jonathan Rosenblatt 
 neighbourhoodMatrix<- function(i,j,k){
 	as.matrix(expand.grid(c(i-1,i,i+1), c(j-1,j,j+1), c(k-1,k,k+1))[-14,])
 }
@@ -375,18 +374,18 @@ neighbourhoodMatrix<- function(i,j,k){
 
 
 
-
-#' Impute an array with first degree neighbours
-#' @param beta.array 
-#' @param min.neighbours 
-#' @return An array with imputed values.
-#'  
-#' The function will look for location with more than 20 neighbours and impute the missing value with their 0.1 trimmed mean.
-#' 
-#' @author Jonathan Rosenblatt 
+#
+##' Impute an array with first degree neighbours
+##' @param beta.array 
+##' @param min.neighbours 
+##' @return An array with imputed values.
+##'  
+##' The function will look for location with more than 20 neighbours and impute the missing value with their 0.1 trimmed mean.
+##' 
+##' @author Jonathan Rosenblatt 
 imputeArray <- function(beta.array, min.neighbours=20) {
 	
-	# TODO: A) speedup imputation.
+	# TODO: A) speedup array imputation.
 	result<- beta.array
 	dims<- dim(result)
 	
@@ -415,13 +414,13 @@ imputeArray <- function(beta.array, min.neighbours=20) {
 
 
 
-
-#' Impute a selected parameters in a brain array
-#' @param brain.mixture.fit.object 
-#' @param param.to.impute 
-#' @return An array of parameter estimates imputed using first degree neighbourhood.
-#' 
-#' @author Jonathan Rosenblatt 
+#
+##' Impute a selected parameters in a brain array
+##' @param brain.mixture.fit.object 
+##' @param param.to.impute 
+##' @return An array of parameter estimates imputed using first degree neighbourhood.
+##' 
+##' @author Jonathan Rosenblatt 
 wrapImputeArray<- function(brain.mixture.fit.object){
 	## Initializing:
 	dims<- dim(brain.mixture.fit.object)
@@ -452,17 +451,17 @@ wrapImputeArray<- function(brain.mixture.fit.object){
 
 
 
-
-#' Checks if constraint on p3 is met?
-#' @param p1 
-#' @param mu 
-#' @param A 
-#' @param B 
-#' @param n 
-#' @param fit.control 
-#' @return The maximal allowed value for \eqn{p_3}.
-#' 
-#' @author Jonathan Rosenblatt 
+#
+##' Checks if constraint on p3 is met?
+##' @param p1 
+##' @param mu 
+##' @param A 
+##' @param B 
+##' @param n 
+##' @param fit.control 
+##' @return The maximal allowed value for \eqn{p_3}.
+##' 
+##' @author Jonathan Rosenblatt 
 p3Bound<-function(mu, A, B, n, fit.control){
 	result<- 1
 	expo<- fit.control$numericThresh
@@ -482,16 +481,16 @@ p3Bound<-function(mu, A, B, n, fit.control){
 
 
 
-
-#' Converts a list of MRIimage objects to a single four dimentional array.
-#' @param MRImage.list List of Mriimage objects. All assumed to have same resolutino and representing different subjects.
-#' @return A numeric four dimentional array with space as first three dimentions and subject as the fourth.
-#' 
-#' @author Jonathan Rosenblatt 
-#' @export
-#' @examples
-#' data(VinkData)
-#' MriImage2Array(scans)
+#
+##' Converts a list of MRIimage objects to a single four dimentional array.
+##' @param MRImage.list List of Mriimage objects. All assumed to have same resolutino and representing different subjects.
+##' @return A numeric four dimentional array with space as first three dimentions and subject as the fourth.
+##' 
+##' @author Jonathan Rosenblatt 
+##' @export
+##' @examples
+##' data(VinkData)
+##' MriImage2Array(scans)
 
 MriImage2Array<- function(MRImage.list){
 	
@@ -538,53 +537,53 @@ MriImage2Array<- function(MRImage.list){
 
 
 # TODO: A) remove "..." parameter in brainMixtureFit()
-
-#' Fits a mixture models to a group SPM{beta}
-#' @param MRImage.list  List of Mriimage objects. All assumed to have same resolution and representing different subjects.
-#' @param fit.control List of control parameters generated by \code{\link{generateMixtureControl}} 
-#' @param ... Deprecated
-#' @return List of MriImage objects. Each holding the SPM of a different parameters:
-#' \item{initial.p1}{Deprecated}
-#' \item{initial.p2}{Deprecated}
-#' \item{initial.p3}{Deprecated}
-#' \item{initial.mu}{Deprecated}
-#' \item{initial.A}{Deprecated}
-#' \item{initial.B}{Deprecated}
-#' \item{initial.C}{Deprecated}
-#' \item{p1.1}{Estimate of \emph{full} mixture parameters.}
-#' \item{p2.1}{Estimate of \emph{full} mixture parameters.}
-#' \item{p3.1}{Estimate of \emph{full} mixture parameters.}
-#' \item{mu.1}{Estimate of \emph{full} mixture parameters.}
-#' \item{A.1}{Estimate of \emph{full} mixture parameters.}
-#' \item{B.1}{Estimate of \emph{full} mixture parameters.}
-#' \item{C.1}{Estimate of \emph{full} mixture parameters.}
-#' \item{likelihood.1}{\emph{Full} maximal likelihood.}
-#' \item{p3.bound}{Maximal allowed value for p.3 given other parameter estimates. Serves to check if parameter space constraints are violated.}
-#' \item{p1.0}{Estimate of \emph{null} mixture parameters.}
-#' \item{p2.0}{Estimate of \emph{null} mixture parameters.}
-#' \item{A.0}{Estimate of \emph{null} mixture parameters.}
-#' \item{B.0}{Estimate of \emph{null} mixture parameters.}
-#' \item{likelihood.0}{\emph{Null} maximal likelihood}
-#' \item{n}{Sample size.}
-#'     
-#' Given a list of MriImage objects-- all registered to a common template--   the function will fit a mixture model at each voxel and return an array of the voxel-wise parameter estimates.
-#' The fitting is done using the \link{mixtools}  package.
-#' The mixture being fitted is parametrized as: \deqn{p_1 \phi_{0,\sigma_1}+p_2 \phi_{0,\sigma_2}+p_3 \phi_{\mu,\sigma_3}   } where
-#' \eqn{\phi_{\mu,\sigma}} is the Gaussian PDF.
-#'  
-#' @author Jonathan Rosenblatt 
-#' @references Revisiting Multi-Subject Random Effects in fMRI
-#' Rosenblatt J.D., Vink M., Benjamini Y. (2012) 
-#' @examples 
-#' data(VinkData)
-#' ### No need to run. Output already in VinkDataFit in order to save time.
-#' #test.brain.fit<- brainMixtureFit(scans, fit.control = generateMixtureControl())
-#' data(VinkDataFit)
-#' createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
-#' image(test.brain.fit[["p3.1"]]$getData()[,,26])
-#' lapply(test.brain.fit, function(x) x$getData()[20,20,20])
-#' @export
-brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl(), ...){
+#
+##' Fits a mixture models to a group SPM{beta}
+##' @param MRImage.list  List of Mriimage objects. All assumed to have same resolution and representing different subjects.
+##' @param fit.control List of control parameters generated by \code{\link{generateMixtureControl}} 
+##' @param ... Deprecated
+##' @return List of MriImage objects. Each holding the SPM of a different parameters:
+##' \item{initial.p1}{Deprecated}
+##' \item{initial.p2}{Deprecated}
+##' \item{initial.p3}{Deprecated}
+##' \item{initial.mu}{Deprecated}
+##' \item{initial.A}{Deprecated}
+##' \item{initial.B}{Deprecated}
+##' \item{initial.C}{Deprecated}
+##' \item{p1.1}{Estimate of \emph{full} mixture parameters.}
+##' \item{p2.1}{Estimate of \emph{full} mixture parameters.}
+##' \item{p3.1}{Estimate of \emph{full} mixture parameters.}
+##' \item{mu.1}{Estimate of \emph{full} mixture parameters.}
+##' \item{A.1}{Estimate of \emph{full} mixture parameters.}
+##' \item{B.1}{Estimate of \emph{full} mixture parameters.}
+##' \item{C.1}{Estimate of \emph{full} mixture parameters.}
+##' \item{likelihood.1}{\emph{Full} maximal likelihood.}
+##' \item{p3.bound}{Maximal allowed value for p.3 given other parameter estimates. Serves to check if parameter space constraints are violated.}
+##' \item{p1.0}{Estimate of \emph{null} mixture parameters.}
+##' \item{p2.0}{Estimate of \emph{null} mixture parameters.}
+##' \item{A.0}{Estimate of \emph{null} mixture parameters.}
+##' \item{B.0}{Estimate of \emph{null} mixture parameters.}
+##' \item{likelihood.0}{\emph{Null} maximal likelihood}
+##' \item{n}{Sample size.}
+##'     
+##' Given a list of MriImage objects-- all registered to a common template--   the function will fit a mixture model at each voxel and return an array of the voxel-wise parameter estimates.
+##' The fitting is done using the \link{mixtools}  package.
+##' The mixture being fitted is parametrized as: \deqn{p_1 \phi_{0,\sigma_1}+p_2 \phi_{0,\sigma_2}+p_3 \phi_{\mu,\sigma_3}   } where
+##' \eqn{\phi_{\mu,\sigma}} is the Gaussian PDF.
+##'  
+##' @author Jonathan Rosenblatt 
+##' @references Revisiting Multi-Subject Random Effects in fMRI
+##' Rosenblatt J.D., Vink M., Benjamini Y. (2012) 
+##' @examples 
+##' data(VinkData)
+##' ### No need to run. Output already in VinkDataFit in order to save time.
+##' #test.brain.fit<- brainMixtureFit(scans, fit.control = generateMixtureControl())
+##' data(VinkDataFit)
+##' createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
+##' image(test.brain.fit[["p3.1"]]$getData()[,,26])
+##' lapply(test.brain.fit, function(x) x$getData()[20,20,20])
+##' @export
+brainMixtureFit2<- function(MRImage.list, fit.control= generateMixtureControl()){
 	
 	## Verify input:
 	stopifnot(is.list(MRImage.list) && class(MRImage.list[[1]])=="MriImage" ) 
@@ -669,7 +668,7 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl(), 
 #(files<- grep("con.*img", list.files(), value=T))
 #(files<- sub('\\.img', "", files))
 #scans<- importBetaMriImages(files, fileType='NIFTI')
-#test.brain.fit<- brainMixtureFit(scans, fit.control = generateMixtureControl())
+#test.brain.fit<- brainMixtureFit2(scans, fit.control = generateMixtureControl())
 #x11()
 #createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
 #image(test.brain.fit[["p3.1"]]$getData()[,,26])
@@ -693,20 +692,20 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl(), 
 
 
 
-
-#' Export all estimated parameters to imaging files
-#' @param mixture.fit.object Output of \code{\link{brainMixtureFit}}
-#' @param format The medical imaging format to export. See details.
-#' @param file.heading Heading of output files.
-#' @return Nothing. Called for it's side effects.
-#' 
-#' This is a convenience wrapper around \code{\link{writeMriImageToFile}}.
-#'  
-#' It exports all the SPM outputed by \code{\link{brainMixtureFit}} and saves them in any of the formats supported by \code{\link{writeMriImageToFile}. 
-#' @author Jonathan Rosenblatt 
-#' @export
-#' @examples
-#' #exportFitAsMedicalImage(mixture.fit.object = test.brain.fit, file.heading = "export", format = "test")
+#
+##' Export all estimated parameters to imaging files
+##' @param mixture.fit.object Output of \code{\link{brainMixtureFit}}
+##' @param format The medical imaging format to export. See details.
+##' @param file.heading Heading of output files.
+##' @return Nothing. Called for it's side effects.
+##' 
+##' This is a convenience wrapper around \code{\link{writeMriImageToFile}}.
+##'  
+##' It exports all the SPM outputed by \code{\link{brainMixtureFit}} and saves them in any of the formats supported by \code{\link{writeMriImageToFile}. 
+##' @author Jonathan Rosenblatt 
+##' @export
+##' @examples
+##' #exportFitAsMedicalImage(mixture.fit.object = test.brain.fit, file.heading = "export", format = "test")
 exportFitAsMedicalImage<- function(mixture.fit.object, format, file.heading){
 	## Verify input:
 	stopifnot(is.character(file.heading))
@@ -745,20 +744,20 @@ exportFitAsMedicalImage<- function(mixture.fit.object, format, file.heading){
 
 
 
-
-#' Computes a rejecton group mask given beta maps.
-#' @param MRImage.list List of Mriimage objects. All assumed to have same resolutino and representing different subjects.
-#' @param test.statistic Which group test statistic to use. At present "T" or "Wilcoxon" (default) are supported.
-#' @param FDR.level Level of FDR multiplicity control. 
-#' @param fit.control List of control parameters generated by \code{\link{generateMixtureControl}} 
-#' @return An \link{MriImage} class object corresponding to the binary mask of rejected locations.
-#' 
-#' @author Jonathan Rosenblatt 
-#' @export
-#' @examples
-#' data(VinkDataFit) 
-#' test.brain.mask<- computeMask(MRImage.list=scans, method = "T", fit.control = generateMixtureControl())
-#' createSliceGraphic(test.brain.mask, z=30)
+#
+##' Computes a rejecton group mask given beta maps.
+##' @param MRImage.list List of Mriimage objects. All assumed to have same resolutino and representing different subjects.
+##' @param test.statistic Which group test statistic to use. At present "T" or "Wilcoxon" (default) are supported.
+##' @param FDR.level Level of FDR multiplicity control. 
+##' @param fit.control List of control parameters generated by \code{\link{generateMixtureControl}} 
+##' @return An \link{MriImage} class object corresponding to the binary mask of rejected locations.
+##' 
+##' @author Jonathan Rosenblatt 
+##' @export
+##' @examples
+##' data(VinkDataFit) 
+##' test.brain.mask<- computeMask(MRImage.list=scans, method = "T", fit.control = generateMixtureControl())
+##' createSliceGraphic(test.brain.mask, z=30)
 
 computeMask<- function(MRImage.list, test.statistic="Wilcoxon", FDR.level=0.1, fit.control=generateMixtureControl()){
 	## Verify input:
