@@ -109,16 +109,22 @@ generateMixtureControl<- function(
 		null.iteration.limit=1000,
 		roundTolerance= 15,
 		RandomStarts= 5,
-		Resolution= 10
+		Resolution= 10,
+		mStep.iteration.limit=5,
+		variance.bound=10,
+		iterationTolerance=1e-4
 ){	
 	return(list(
 					numericThresh= numericThresh, 	
 					minObservations= minObservations,
-					iteration.limi=iteration.limit,
+					iteration.limit=iteration.limit,
 					null.iteration.limit=null.iteration.limit,
 					roundTolerance=roundTolerance,
 					RandomStarts=RandomStarts,
-					Resolution=Resolution	
+					Resolution=Resolution,
+					mStep.iteration.limit=mStep.iteration.limit,
+					variance.bound=variance.bound,
+					iterationTolerance=iterationTolerance
 			))	
 }
 
@@ -157,14 +163,13 @@ mixedtools2result<- function(mixedtools.output, result, model){
 	
 	
 	
-	# Preparing output for **full** model:
+	# Preparing output for **null** model:
 	if(model=="null"){
 		component.order<- order(mixedtools.output$sigma[c(1,2)]) 
 		result[c("p1.0","p2.0")] <- mixedtools.output$lambda[component.order] 
 		result[c("A.0","B.0")] <- mixedtools.output$sigma[component.order]^2	
 	}
 		
-	# Preparing output for **full** model:
 	return(result)
 }
 
@@ -458,16 +463,15 @@ wrapImputeArray<- function(brain.mixture.fit.object){
 #' @return The maximal allowed value for \eqn{p_3}.
 #' 
 #' @author Jonathan Rosenblatt 
-p3Bound<-function(p1, mu, A, B, n, fit.control){
+p3Bound<-function(mu, A, B, n, fit.control){
 	result<- 1
-	stopifnot(is.numeric(c(p1,A, B, mu)))
 	expo<- fit.control$numericThresh
 	try(expo<- -abs(mu) * sqrt(n / (A + B)), silent=TRUE)
 	if(!is.na(expo)) result<- 1 - exp(expo)			
 	return(result)
 }
 ## Test:
-#p3.bound(0.2,0.5,3,1,2,67,EM9.control)
+#p3Bound(3,1,2,67, generateMixtureControl())
 
 
 
