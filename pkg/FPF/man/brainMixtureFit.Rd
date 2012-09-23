@@ -1,20 +1,20 @@
 \name{brainMixtureFit}
 \alias{brainMixtureFit}
-\title{Fits a mixture models to a group SPM{beta}}
+\title{Fits a voxelwise mixture model to coefficient maps}
 \usage{
   brainMixtureFit(MRImage.list,
     fit.control = generateMixtureControl())
 }
 \arguments{
-  \item{MRImage.list}{List of Mriimage objects. All assumed
-  to have same resolution and representing different
-  subjects.}
+  \item{MRImage.list}{List of \code{\link[tractor.base]{MriImage-class}} objects. All assumed
+  to contain beta coefficient maps, at the same resolution and each representing a different
+  subject.}
 
   \item{fit.control}{List of control parameters generated
   by \code{\link{generateMixtureControl}}}
 }
 \value{
-  List of MriImage objects. Each holding the SPM of a
+  List of \code{\link[tractor.base]{MriImage-class}} objects. Each holding the SPM of a
   different parameters: 
   \item{p1.1}{Estimate of \emph{full} mixture parameters.}
   \item{p2.1}{Estimate of \emph{full} mixture parameters.} 
@@ -33,13 +33,13 @@
   \item{n}{Sample size.} 
 }
 \description{
-  Given a list of MriImage objects-- all registered to a
+  Given a list of \code{\link[tractor.base]{MriImage-class}} objects-- all registered to a
   common template-- the function will fit a mixture model
   at each voxel and return an array of the voxel-wise
   parameter estimates. The mixture being fitted is
-  parametrized as: \deqn{p_1 \phi_{0,\sigma_1}+p_2
+  parametrized as: \deqn{p_1 \phi_{0,\sigma_1} + p_2
   \phi_{0,\sigma_2}+p_3 \phi_{\mu,\sigma_3} } where
-  \eqn{\phi_{\mu,\sigma}} is the Gaussian PDF.
+  \eqn{\phi_{\mu,\sigma}]} is the Gaussian PDF.
 }
 \examples{
 \dontrun{

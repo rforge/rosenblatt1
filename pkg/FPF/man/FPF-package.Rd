@@ -1,10 +1,10 @@
 \docType{package}
-\name{rosenblatt1-package}
-\alias{rosenblatt1}
-\alias{rosenblatt1-package}
-\title{Fit mixture models to fMRI group studies}
+\name{FPF-package}
+\alias{FPF}
+\alias{FPF-package}
+\title{fMRI Prevalence Finder}
 \description{
-  Fit mixture models to fMRI group studies.
+  Fit voxelwise mixture models in fMRI group studies.
 }
 \details{
   \tabular{ll}{ Package: \tab rosenblatt1\cr Type: \tab
@@ -15,6 +15,6 @@
   studies.
 }
 \author{
-  Jonathan Rosenblatt
+  Jonathan Rosenblatt<john.ros@gmail.com>
 }
 

@@ -1,6 +1,6 @@
 \name{computeMask}
 \alias{computeMask}
-\title{Computes a rejection group mask given beta maps.}
+\title{Computes rejection group mask}
 
 \usage{
   computeMask(MRImage.list, test.statistic = "Wilcoxon", FDR.level = 0.1, fit.control=generateMixtureControl())
