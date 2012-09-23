@@ -1,10 +1,13 @@
-# TODO: A) Test solver on more data. 
+# TODO: B) Test solver on more data. 
 # 
 # Author: johnros
 ###############################################################################
 
 #rm(list=ls())
 #require(rosenblatt1)
+#dyn.load('/home/johnros/workspace/MixtureRandomEffects/trunk/likelihood.so')
+#require(tractor.base)
+
 
 
 initializeOutput<- function(){
@@ -104,7 +107,7 @@ checkParams<- function(params, n, fit.control){
 
 
 
-generateHybridParams<- function(resolution, moments, fit.control){
+generateHybridParams<- function(resolution, moments, fit.control, n){
 	m1<- moments[['m1']]
 	m2<- moments[['m2']]
 	m3<- moments[['m3']]
@@ -142,14 +145,13 @@ generateHybridParams<- function(resolution, moments, fit.control){
 	return(result)
 }
 ## Testing:
-#generateHybridParams(resolution = 10, c(m1=1, m2=2, m3=1, m4=0) , generateMixtureControl())
+#generateHybridParams(resolution = 10, c(m1=1, m2=2, m3=1, m4=0) , generateMixtureControl(), n=100)
 
 
 
 
 
 # replaces likelihoodem9.c
-#dyn.load('/home/johnros/workspace/MixtureRandomEffects/trunk/likelihood.so')
 
 likelihood.c<- function(p1, p2, p3, mu, A, B, C, beta.vector,...){
 	.result<- NA
@@ -209,7 +211,7 @@ likelihood.c<- function(p1, p2, p3, mu, A, B, C, beta.vector,...){
 makeStartValues<- function(arbitrary.params, random.params, hybrid.params, random.starts, beta.vector, fit.control){
 	# Combine random and hybrid starting points:
 	n<- length(beta.vector)
-	temp.start.values<- data.frame(rbind(arbitrary.params, random.params, hybrid.params))
+	temp.start.values<- rbind(arbitrary.params, random.params, hybrid.params)
 	ok.rows<- apply(temp.start.values, 1, checkParams, n, fit.control)
 	start.values<- temp.start.values[ok.rows,]
 	
@@ -226,9 +228,9 @@ makeStartValues<- function(arbitrary.params, random.params, hybrid.params, rando
 }
 ## Testing:
 #makeStartValues(
-#		arbitrary.params = generateRandomParams(10, c(m1=1,m2=1,m3=1,m4=0)),
+#		arbitrary.params = generateArbitraryParams(c(m1=1,m2=1,m3=1,m4=0)),
 #		random.params = generateRandomParams(10, c(m1=1,m2=1,m3=1,m4=0)),
-#		hybrid.params = generateHybridParams(resolution = 3, c(m1=1, m2=2, m3=1, m4=0) ),
+#		hybrid.params = generateHybridParams(resolution = 3, c(m1=1, m2=2, m3=1, m4=0), n=10 ),
 #		5,
 #		beta.vector,
 #		generateMixtureControl())
@@ -285,6 +287,7 @@ initialize3MixtureFitFast<- function(beta.vector, fit.control){
 	iteration.limit<- fit.control$iteration.limit
 	random.starts<- fit.control$RandomStarts
 	resolution<- fit.control$Resolution
+	n<- length(beta.vector)
 	
 	#Calculating sample moments
 	m1<- mean(beta.vector)
@@ -303,7 +306,7 @@ initialize3MixtureFitFast<- function(beta.vector, fit.control){
 	
 	
 	# Try grid with moment estimators:
-	hybrid.params<- generateHybridParams(resolution=resolution, moments=empirical.moments, fit.control)
+	hybrid.params<- generateHybridParams(resolution=resolution, moments=empirical.moments, fit.control, n=n)
 	
 	
 	# Combine all starting candidates and remove "illegal" options:
@@ -463,7 +466,6 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 			
 			if(log(p1) > expo ) return(result)			
 			
-			## TODO: A)  Fix problem with constrained target function:
 			# Make sure constraint on p1 is enforced during initialization and iteration
 			value<- c(-0.5*log(2*pi)-
 							0.5*log(A)*T0.1 + 	log(p1)*T0.1 -				0.5/A * T2.1 -
@@ -913,14 +915,17 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 				temp.result.two.components<- pointWise2MixtureFitFast(clean.beta.vector, fit.control, temp.result.three.components)
 				output<- fit2result(temp.result.two.components, output, model="null")
 				
-			}) 	
+			}, silent=TRUE) 	
 	
 	# Finiliazing:
 	return(output)
 }
 ## Testing:
+#beta.vector<- rosenblatt1:::rmixednorm(0.4,0.4,0.2,1,1,1,1, 50)
 #beta.vector<- rmixednorm(0.4,0.4,0.2,1,1,1,1, 50)
 #pointWiseMixtureFitFast(beta.vector, generateMixtureControl())
+#data(VinkData)
+#pointWiseMixtureFitFast(MriImage2Array(scans)[20,20,20,], generateMixtureControl())
 
 
 
@@ -930,6 +935,41 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 
 	
 	
+brainMixtureFitArray<- function(beta.array, fit.control){
+	
+	dims<-dim(beta.array)
+	cat('This may take several minutes. Why not load the fortunes package and enjoy those quotes?\n')
+	progress.bar<- txtProgressBar(min=0, max=prod(dims[-4]), style=1)
+	warn <- options(warn = 2)
+	
+	pointwise<- function(beta.vector) {
+		unlist(pointWiseMixtureFitFast(beta.vector = beta.vector, fit.control = fit.control, progress=progress.bar))
+	}
+	first.fit <- apply(beta.array, c(1,2,3), pointwise)
+	close(progress.bar)
+	
+	
+	
+	# TODO: B) Add imputation and smoothing before re-estimation + check which solution has highest likelihood
+	## Smooth estimates:
+	# impute array before smoothing
+	# smooth estimates
+	
+	
+	smoothed.fit<- first.fit
+	
+	## Second fit:
+	second.fit <- smoothed.fit	
+	
+	
+	## Impute non-convergence
+	imputed.fit<-  wrapImputeArray(second.fit)
+	
+	return(imputed.fit)
+}
+## Testing:
+#load('/home/johnros/workspace/MixtureRandomEffects/pkg/rosenblatt1/data/VinkData.RData')
+#fit.array<- brainMixtureFitArray(MriImage2Array(scans)[20:22,20:22,20:22,], generateMixtureControl())	
 
 
 
@@ -954,56 +994,24 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	
 	## Verify input:
-	stopifnot(is.list(MRImage.list) && class(MRImage.list[[1]])=="MriImage" ) 
+	stopifnot(is.list(MRImage.list) && class(MRImage.list[[1]])=="MriImage" )	
 	
+	
+	## Logging:
+	#log.file.name<- tempfile("Mixture_Log_")
+	#log.con<- file(log.file.name, open="wt")	
+	#cat("Log written to", log.file.name,"\n")
+	warn<- options('warn'=0)
 	
 	
 	## Initialize:
-	#Arranging data in one array:
-	beta.array<- MriImage2Array(MRImage.list)
-	
-	# For debugging:	beta.array<- beta.array[25:30,28:30,28:30,]
-	
-	dims<-dim(beta.array)
-	cat('This may take several minutes. Why not load the fortunes package and enjoy those quotes?\n')
-	log.file.name<- tempfile("Mixture_Log_")
-	log.con<- file(log.file.name, open="wt")
-	sink(file=log.con, type="message")
-	cat("Log written to", log.file.name,"\n")	
-	progress.bar<- txtProgressBar(min=0, max=prod(dims[-4]), style=1)
-	warn <- options(warn = 2)
-	
-	
-		
-	## Fit- first step
-	pointwise<- function(beta.vector) {
-		unlist(pointWiseMixtureFitFast(beta.vector = beta.vector, fit.control = fit.control, progress=progress.bar))
-	}
-	
-	
-	first.fit <- apply(beta.array, c(1,2,3), pointwise)
-	close(progress.bar)
-	
-	
-	
-	# TODO: B) Add imputation and smoothing before re-estimation + check which solution has highest likelihood
-	## Smooth estimates:
-	# impute array before smoothing
-	# smooth estimates
-	
-	
-	smoothed.fit<- first.fit
-		
-	## Second fit:
-	second.fit <- smoothed.fit	
-	
-	
-	## Impute non-convergence
-	imputed.fit<-  wrapImputeArray(second.fit)	
-	
+	beta.array<- MriImage2Array(MRImage.list)	
+			
+	## Fit	
+	imputed.fit<- brainMixtureFitArray(beta.array, fit.control)
 	
 	## Finilizing
-	dim.names<- dimnames(first.fit)
+	dim.names<- dimnames(imputed.fit)
 	fitted.list<- list()
 	meta<- newMriImageMetadataFromTemplate(MRImage.list[[1]]$getMetadata(), datatype=getDataTypeByNiftiCode(16))
 	for(param in dim.names[[1]]){
@@ -1011,19 +1019,15 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	}
 	
 	
-	
 	## Exit:
 	options(warn)
-	sink(type="message")
 	message('Done')
-	return(fitted.list)
-	
-	
+	return(fitted.list)	
 }
 ## Testing:
-#require(tractor.base)
-#load('/home/johnros/workspace/MixtureRandomEffects/pkg/rosenblatt1/data/VinkData.RData')
-#system.time(test.brain.fit<- brainMixtureFit(scans, generateMixtureControl()))
+#require(rosenblatt1)
+
+#test.brain.fit<- brainMixtureFit(scans, generateMixtureControl())
 #	
 #x11()
 #createSliceGraphic(test.brain.fit[["p3.1"]], z=26)

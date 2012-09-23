@@ -42,10 +42,10 @@
   \eqn{\phi_{\mu,\sigma}} is the Gaussian PDF.
 }
 \examples{
-data(VinkData)
 \dontrun{
 	No need to run. 
 	Output already in VinkDataFit in order to save time.
+	data(VinkData)	
 	test.brain.fit<- brainMixtureFit(scans, fit.control = generateMixtureControl())
 }
 data(VinkDataFit)
