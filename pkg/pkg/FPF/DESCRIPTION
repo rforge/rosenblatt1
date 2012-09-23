@@ -1,7 +1,7 @@
-Package: rosenblatt1
+Package: FPF
 Type: Package
-Title: Mixture random effects in group fMRI studies
-Version: 0.5
+Title: fMRI Prevalence Finder 
+Version: 0.51
 Date: 2012-08-19
 Author: Jonathan Rosenblatt, Shlomi Lifshits
 Maintainer: Jonathan Rosenblatt <john.ros@gmail.com>

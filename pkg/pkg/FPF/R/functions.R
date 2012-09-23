@@ -364,18 +364,9 @@ neighbourhoodMatrix<- function(i,j,k){
 
 
 
-#
-##' Impute an array with first degree neighbours
-##' @param beta.array 
-##' @param min.neighbours 
-##' @return An array with imputed values.
-##'  
-##' The function will look for location with more than 20 neighbours and impute the missing value with their 0.1 trimmed mean.
-##' 
-##' @author Jonathan Rosenblatt 
+# Deprecated by imputeArray2 
 imputeArray <- function(beta.array, min.neighbours=20) {
 	
-	# TODO: A) speedup array imputation.
 	result<- beta.array
 	dims<- dim(result)
 	
@@ -396,6 +387,28 @@ imputeArray <- function(beta.array, min.neighbours=20) {
 #test.array<- array(rnorm(10*10*10), dim=c(10,10,10))
 #rosenblatt1:::imputeArray(test.array)
 
+
+
+
+
+
+# Impute an array with first degree neighbours (Shlomi's C implementation):
+#dyn.load("/home/johnros/workspace/MixtureRandomEffects/trunk/average_NA.so")
+
+imputeArray2 <- function(beta.array, min.neighbours=20) {	
+	dims<- dim(beta.array)	
+	
+		result <- .Call("fill_NA_voxels_with_neig_mean",
+				x=as.double(beta.array),
+				dim.x=as.integer(dims[1]),
+				dim.y=as.integer(dims[2]),
+				dim.z=as.integer(dims[3]))
+		
+		return (array(data=result,dim=dims))
+}
+## Testing:
+#test.array<- array(rnorm(10*10*10), dim=c(10,10,10))
+#imputeArray2(test.array)
 
 
 
@@ -431,14 +444,14 @@ wrapImputeArray<- function(brain.mixture.fit.object){
 	
 	
 	for (param in dim.names[[1]]){
-		result[param,,,]<- imputeArray(brain.mixture.fit.object[param,,,])
+		result[param,,,]<- imputeArray2(brain.mixture.fit.object[param,,,])
 			}
 			
 	return(result)
 	
 }
 ## Testing:
-#my.array<- array(rnorm(10^4), dim=c(x=10,y=10,z=10,j=10), dimnames = list(NULL, NULL, NULL, LETTERS[1:10]))
+#my.array<- array(rnorm(10^4), dim=c(x=10,y=10,z=10,j=10), dimnames = list(LETTERS[1:10], NULL, NULL, NULL ))
 #dimnames(my.array)
 #wrapImputeArray(my.array)
 
