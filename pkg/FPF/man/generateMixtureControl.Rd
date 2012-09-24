@@ -12,10 +12,9 @@ generateMixtureControl(numericThresh = -18, minObservations = 15, iteration.limi
 }
 
 \arguments{
-  \item{numericThresh}{
-
-}
-  \item{minObservations}{Minimal number of observations to attempt fitting.}
+  \item{numericThresh}{The percision used for numerical comparisons}
+  
+  \item{minObservations}{Minimal number of observations.}
   
   \item{iteration.limit}{Number of iterations to estimate full model}
   
@@ -33,9 +32,9 @@ generateMixtureControl(numericThresh = -18, minObservations = 15, iteration.limi
   
   \item{iterationTolerance}{Magnitude of change required before convergence}
 }
-\value{Returns a list with the above parameters}
+\value{Returns a list with the above parameters.}
 
 \author{
-Jonathan Rosenblatt <john.ros@gmail.com>
+Jonathan Rosenblatt <john.ros.work@gmail.com>
 }
 

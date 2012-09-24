@@ -15,14 +15,12 @@
   \item{file.heading}{Heading of output files.}
 }
 \value{
-  Nothing. Called for it's side effects.
+  Called for it's side effects.
 
-  This is a convenience wrapper around
+  Convenience wrapper around
   \code{\link{writeMriImageToFile}}.
 
-  It exports all the SPM outputed by
-  \code{\link{brainMixtureFit}} and saves them in any of
-  the formats supported by
+  Exports all the SPM outputed by \code{\link{brainMixtureFit}} and saves them in any of  the formats supported by
   \code{\link{writeMriImageToFile}}.
 }
 
@@ -31,7 +29,7 @@
 }
 \examples{
 \dontrun{
-	exportFitAsMedicalImage(mixture.fit.object = test.brain.fit, file.heading = "export", format = "test")
+	exportFitAsMedicalImage(mixture.fit.object = test.brain.fit, file.heading = "export", format = "NIFTI")
 }
 }
 \author{

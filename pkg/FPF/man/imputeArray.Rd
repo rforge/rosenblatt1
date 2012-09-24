@@ -12,9 +12,8 @@
 \value{
   An array with imputed values.
 
-  The function will look for location with more than 20
-  neighbours and impute the missing value with their 0.1
-  trimmed mean.
+  The function will look for location with more than \code{min.neighbours}
+  neighbors and impute the missing value with their mean.
 }
 \description{
   Impute an array with first degree neighbors. Typically called by \code{\link{brainMixtureFit}}.

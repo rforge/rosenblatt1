@@ -6,7 +6,6 @@
 \description{
   List of \link[tractor.base]{MriImage} objects imported using \code{\link{importBetaMriImages}}. Each object originates from a different subject. All data has been pre-processed as described in the references.
 }
-\format{List}
 \references{
 Zandbelt, Bram B, Mariet van Buuren, Rene S Kahn, and Matthijs Vink. 
 "Reduced Proactive Inhibition in Schizophrenia Is Related to Corticostriatal Dysfunction and Poor Working Memory." 

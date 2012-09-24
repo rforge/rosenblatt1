@@ -1,6 +1,6 @@
 \name{importBetaMriImages}
 \alias{importBetaMriImages}
-\title{Function imoprting a directory with scans in all formats except DICOM:}
+\title{Import medical image file}
 \usage{
   importBetaMriImages(files, ...)
 }
@@ -11,19 +11,16 @@
   \code{\link{newMriImageFromFile}}}
 }
 \value{
-  A list containin an \code{\link{MriImage}} class object
-  for each file in the input.
-
-  The function is a convinience wrapper around
-  \code{\link{newMriImageFromFile}}. It recieves a list of
-  medical imaging files (in the formats supported by
-  \code{\link{newMriImageFromFile}}) and return a list of
-  \code{\link{MriImage}} objects-- one for each file
-  supplied.
+  A list containing an \code{\link[tractor.base]{MriImage}} class object
+  for each file in the input. 
 }
 \description{
-  Function imoprting a directory with scans in all formats
-  except DICOM:
+  Function importing a directory with scans in all formats (except DICOM). 
+  The function is essentially a convenience wrapper around \code{\link{newMriImageFromFile}}.
+  It receives a list of medical imaging files (in the formats supported by
+  \code{\link{newMriImageFromFile}}) and return a list of
+  \code{\link{MriImage}} objects-- one for each file
+  supplied. 
 }
 \examples{
 \dontrun{

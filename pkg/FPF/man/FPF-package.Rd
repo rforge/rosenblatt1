@@ -15,6 +15,6 @@
   studies.
 }
 \author{
-  Jonathan Rosenblatt<john.ros@gmail.com>
+  Jonathan Rosenblatt<john.ros.work@gmail.com>
 }
 
