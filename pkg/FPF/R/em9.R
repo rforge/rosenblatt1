@@ -523,16 +523,16 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 		result[['C']]<- exp(optim.result$par[['log.C']])
 		result[['p1']]<- inv.logit(optim.result$par[['logit.p1']])
 		result[['p3']]<- p3Bound(mu=result[['mu']], A=result[['A']], B=result[['B']], n=n, fit.control = fit.control)
-		result[['p2']]<- 1-result[['p3']]-result[['p2']]				
+		result[['p2']]<- 1 - result[['p3']] - result[['p2']]				
 	}
 	
 	return(result)
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.1,0.2,0.7,1,1,2,1,1000)
+#beta.vector<- rmixednorm(0.1,0.2,0.7,0,1,2,1,100)
 #m.step3(
-#		responsibility3(c(p1=0.1, p2=0.9, p3=0, mu=1, A=1, B=1, C=1), beta.vector, generateMixtureControl()),
-#		TRUE, 
+#		responsibility3(c(p1=0.1, p2=0.7, p3=0.2, mu=0, A=0.2, B=2, C=0.2), beta.vector, generateMixtureControl()),
+#		constrained=FALSE, 
 #		beta.vector, 
 #		generateMixtureControl())
 	
@@ -594,7 +594,7 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 }
 ## Testing:
 #beta.vector<- rmixednorm(0.1,0.2,0.7,1,1,2,1,100)
-#iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, TRUE, generateMixtureControl())
+#iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = FALSE, generateMixtureControl())
 
 
 
@@ -699,22 +699,23 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	
 	
 	# If the bound on p3 is effective:
-	p3.bound<- p3Bound(temp.result[['mu.1']], temp.result[['A.1']], temp.result[['B.1']], n=n, fit.control=fit.control)
+	p3.bound<- p3Bound(temp.result[['mu']], temp.result[['A']], temp.result[['B']], n=n, fit.control=fit.control)
 	if(temp.result[['p3']] > p3.bound ){		
+		
 		temp.result<- iterate3MixtureFitFast(
 				initial.params=initial,		
 				beta.vector=beta.vector,				 
 				iteration.limit=fit.control$iteration.limit, 
 				constrained = TRUE,
 				fit.control = fit.control)
-	}
+	}	
 	
 	
 	return(temp.result)		
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.1,0.2,0.7,1,1,2,1,50)
-#pointWise3MixtureFitFast(beta.vector, generateMixtureControl())
+#beta.vector<- rmixednorm(0.88, 0.12, 0, 0, 0.5, 1, 0.1, 10000)
+#round(pointWise3MixtureFitFast(beta.vector, generateMixtureControl()),2)
 
 
 
