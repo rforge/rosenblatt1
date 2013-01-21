@@ -496,6 +496,7 @@ p3Bound<-function(mu, A, B, n, fit.control){
 
 
 
+
 #
 ##' Converts a list of MRIimage objects to a single four dimentional array.
 ##' @param MRImage.list List of Mriimage objects. All assumed to have same resolutino and representing different subjects.
