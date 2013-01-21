@@ -1,0 +1,20 @@
+Upgrade plan:
+0. Visualize new constraint on toy example data.
+1 - exp(-abs(mu) * n * h(A,B,C))
+
+Constraint properties:
+- Vanishes as A OR B grow
+- Vanishes as C is close to A OR B. 
+- Invariant to C (except through its difference to A OR B).
+- Less stringent as And B differ from C.
+
+
+1. Change constraint. 
+New constraint: 1-exp( -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B))) )
+* Change p3Bound.
+* Change constrained optimization in pointWise3MixtureFitFast()
+
+
+
+2. Update accompanying data files:
+3. Update paper: figures ##, discussion in sections ##

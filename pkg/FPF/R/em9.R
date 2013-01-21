@@ -458,17 +458,16 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 			A<- exp(args[['log.A']]) 
 			B<- exp(args[['log.B']]) 
 			C<- exp(args[['log.C']])
-			
-			
-			expo<- -abs(mu) * sqrt(n/(A+B))
+						
+			expo<- -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B)))
 			
 			result<- -99999999
 			
+			# Make sure constraint on p1 is enforced during initialization and iteration
 			if(log(p1) > expo ) return(result)			
 			
-			# Make sure constraint on p1 is enforced during initialization and iteration
 			value<- c(-0.5*log(2*pi)-
-							0.5*log(A)*T0.1 + 	log(p1)*T0.1 -				0.5/A * T2.1 -
+							0.5*log(A)*T0.1 + 	log(p1)*T0.1 -	0.5/A * T2.1 -
 							0.5*log(B)*T0.2 + 	log(max(exp(expo)-p1, 0))*T0.2 - 	0.5/B * T2.2 -
 							0.5*log(C)*T0.3 + 	log(1-exp(expo))*T0.3 - 0.5/C*(T2.3 + mu^2*T0.3 - 2*mu*T1.3))			
 			
@@ -476,45 +475,15 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 			
 			return(result)
 		}
-		
-		
-		constrained.gradient<- function(args){
-			p1<- inv.logit(args[['logit.p1']]) 
-			mu<- args[['mu']] 
-			A<- exp(args[['log.A']]) 
-			B<- exp(args[['log.B']]) 
-			C<- exp(args[['log.C']])			
-			
-			Expo<- -abs(mu)*sqrt(n / (A+B))		
-			expExpo.plus<- exp(-Expo)		
-			coef1<- abs(mu) * sqrt(n) / (A+B)^(3/2)
-			coef2<- coef1 / (2-2*expExpo.plus*p1)
-			coef3<- coef1 / (2-2*expExpo.plus)
-			coef4<- sqrt(n/(A+B))*sign(mu)
-			
-			result<- c(
-					logit.p1 = (1/p1*T0.1 - T0.2/(exp(Expo)-p1)) * 1/(p1-p1^2),
-					mu= (T0.2*coef4/(p1*expExpo.plus-1) + T0.3*coef4/(expExpo.plus-1) + 1/C*(T1.3-mu*T0.3)) ,
-					log.A = (0.5/A^2*T2.1 - 0.5/A*T0.1 + T0.2*coef2 + T0.3*coef3) * A ,
-					log.B = (0.5/B^2*T2.2 + coef2*T0.2 - 0.5/B*T0.2 + T0.3*coef3) * B,
-					log.C = (0.5/C^2*(T2.3 - 2*mu*T1.3 + mu^2*T0.3) - 0.5/C * T0.3 ) * C ) 
-			
-			return(result)	
-		}		
-		
-								
+										
 		# Initialization values for optimization:
 		init.par<- with(as.list(result), list(logit.p1=logit(p1), mu=mu, log.A=log(A), log.B=log(B), log.C=log(C))   )
 		
 		## Actual optimization:
-		#temp.function<- function(arguments){ constrained.target.function(args=arguments, resps=resps, beta.vector=beta.vector)	}				
-		#temp.gradient<- function(arguments){ constrained.gradient(args=arguments, resps=resps, beta.vector=beta.vector)	}
 		optim.result<- optim(
 				par=init.par,		
-				fn=constrained.target.function, #temp.function,
-				gr=constrained.gradient, #temp.gradient,
-				control=list(fnscale=-1, maxit=mStep.iteration.limit ), method='BFGS')
-		
+				fn=constrained.target.function,				
+				control=list(fnscale=-1, maxit=mStep.iteration.limit ), method='Nelder-Mead')		
 		
 		
 		result[['mu']]<- optim.result$par[['mu']]
@@ -699,7 +668,7 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	
 	
 	# If the bound on p3 is effective:
-	p3.bound<- p3Bound(temp.result[['mu']], temp.result[['A']], temp.result[['B']], n=n, fit.control=fit.control)
+	p3.bound<- p3Bound(mu=temp.result[['mu']], A=temp.result[['A']], B=temp.result[['B']], C=temp.result[['C']],  n=n, fit.control=fit.control)
 	if(temp.result[['p3']] > p3.bound ){		
 		
 		temp.result<- iterate3MixtureFitFast(

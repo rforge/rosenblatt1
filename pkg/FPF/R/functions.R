@@ -477,15 +477,17 @@ wrapImputeArray<- function(brain.mixture.fit.object){
 ##' @return The maximal allowed value for \eqn{p_3}.
 ##' 
 ##' @author Jonathan Rosenblatt 
-p3Bound<-function(mu, A, B, n, fit.control){
+p3Bound<-function(mu, A, B, C, n, fit.control){
 	result<- 1
+	
 	expo<- fit.control$numericThresh
-	try(expo<- -abs(mu) * sqrt(n / (A + B)), silent=TRUE)
-	if(!is.na(expo)) result<- 1 - exp(expo)			
+	try(expo<- -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B))) , silent=TRUE)
+	if(!is.na(expo)) result<- 1 - exp(expo)	
+	
 	return(result)
 }
 ## Test:
-#p3Bound(3,1,2,67, generateMixtureControl())
+#p3Bound(3,1,2,1.01,67, generateMixtureControl())
 
 
 

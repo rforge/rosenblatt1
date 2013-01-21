@@ -1,0 +1,73 @@
+\documentclass[12pt]{article}
+\usepackage{Sweave,amsmath,amsfonts,bm}
+\usepackage[authoryear,round]{natbib}
+\bibliographystyle{plainnat}
+\DefineVerbatimEnvironment{Sinput}{Verbatim}
+{formatcom={\vspace{-1ex}},fontshape=sl,
+  fontfamily=courier,fontseries=b, fontsize=\footnotesize}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}
+{formatcom={\vspace{-1ex}},fontfamily=courier,fontseries=b,%
+  fontsize=\footnotesize}
+%%\VignetteIndexEntry{Tutorial}
+%%\VignetteDepends{FPF}
+\title{FPF tutorial}
+\author{Jonathan Rosenblatt\\Department of Statistics\\%
+  University of Tel Aviv -- Israel}
+\begin{document}
+\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,strip.white=true,keep.source=TRUE}
+\SweaveOpts{include=FALSE}
+\setkeys{Gin}{width=\textwidth}
+
+\newcommand{\code}[1]{\texttt{\small{#1}}}
+\newcommand{\package}[1]{\textsf{\small{#1}}}
+
+<<preliminaries,echo=FALSE,results=hide>>=
+options(width=65,digits=5)
+#library(FPF)
+@
+
+\maketitle
+
+
+\begin{abstract}
+  The \package{FPF} package is used for the analysis of grou-wise fMRI
+  experiments by fitting voxel-wise Gaussian mixtures following [## addd ref].
+\end{abstract}
+
+
+
+\section{Imporing the data}
+\label{sec:data-import}
+Unsuprisingly, the analysis begins with the import of the different fMRI scans.
+Assuming the pre-processing has been performed (say, in SPM, Brain Voyager,...),
+one would have a set of medical imaging files. Each holding a beta (coefficient)
+map for each subject. Unsmoothed. All registered to a common template (say MNI,
+talaraich,...). We now wish to import these scans into R objects. This is done
+using the \emph{importBetaMriImages} function:
+<<>>=
+	
+@
+
+
+\section{Fitting the mixture}
+\label{sec:fitting}
+
+\section{Testing for activations}
+\label{sec:testing}
+
+\section{Exporting the SPMs}
+\label{sec:data-export}
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
