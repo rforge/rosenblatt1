@@ -462,26 +462,17 @@ wrapImputeArray<- function(brain.mixture.fit.object){
 
 
 
+exponentialConstraint<- function(mu,A,B,C,n) -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B)))
+## Testing:
+exponentialConstraint(1,1,2,3,100)
 
 
-
-
-#
-##' Checks if constraint on p3 is met?
-##' @param p1 
-##' @param mu 
-##' @param A 
-##' @param B 
-##' @param n 
-##' @param fit.control 
-##' @return The maximal allowed value for \eqn{p_3}.
-##' 
-##' @author Jonathan Rosenblatt 
+ 
 p3Bound<-function(mu, A, B, C, n, fit.control){
 	result<- 1
 	
 	expo<- fit.control$numericThresh
-	try(expo<- -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B))) , silent=TRUE)
+	try(expo<- exponentialConstraint(mu,A,B,C,n) , silent=TRUE)
 	if(!is.na(expo)) result<- 1 - exp(expo)	
 	
 	return(result)

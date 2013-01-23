@@ -428,7 +428,6 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 	result<- c(p1=NA, p2=NA, p3=NA, mu=NA, A=NA, B=NA, C=NA)
 	n<- length(beta.vector)
 	
-	# Compute unconstrained estimates:
 	resps.total<- sum(unlist(resps))
 	T0.1<- sum(resps[['resp1']])
 	T0.2<- sum(resps[['resp2']])
@@ -440,6 +439,8 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 	T2.2<- resps[['resp2']]%*%beta.vector^2
 	T2.3<- resps[['resp3']]%*%beta.vector^2	
 	
+	
+	# Unconstrained estimates:	
 	result[['p1']]<- T0.1 / resps.total
 	result[['p2']]<- T0.2 / resps.total
 	result[['p3']]<- 1-result[['p1']]-result[['p2']]			
@@ -459,16 +460,17 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 			B<- exp(args[['log.B']]) 
 			C<- exp(args[['log.C']])
 						
-			expo<- -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B)))
+			# Here is the difference with past constraint functions:
+			expo<- exponentialConstraint(mu,A,B,C,n)
 			
 			result<- -99999999
 			
 			# Make sure constraint on p1 is enforced during initialization and iteration
-			if(log(p1) > expo ) return(result)			
+			if(log(p1) > expo || log(p1) < 0 ) return(result)			
 			
-			value<- c(-0.5*log(2*pi)-
+			value<- c(-0.5*n*log(2*pi)-
 							0.5*log(A)*T0.1 + 	log(p1)*T0.1 -	0.5/A * T2.1 -
-							0.5*log(B)*T0.2 + 	log(max(exp(expo)-p1, 0))*T0.2 - 	0.5/B * T2.2 -
+							0.5*log(B)*T0.2 + 	log(exp(expo)-p1)*T0.2 - 	0.5/B * T2.2 -
 							0.5*log(C)*T0.3 + 	log(1-exp(expo))*T0.3 - 0.5/C*(T2.3 + mu^2*T0.3 - 2*mu*T1.3))			
 			
 			if( isTRUE(!is.na(value) && !is.infinite(value)) ) result<- value	
@@ -491,17 +493,17 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 		result[['B']]<- exp(optim.result$par[['log.B']])
 		result[['C']]<- exp(optim.result$par[['log.C']])
 		result[['p1']]<- inv.logit(optim.result$par[['logit.p1']])
-		result[['p3']]<- p3Bound(mu=result[['mu']], A=result[['A']], B=result[['B']], n=n, fit.control = fit.control)
+		result[['p3']]<- p3Bound(mu=result[['mu']], A=result[['A']], B=result[['B']], C=result[['C']], n=n, fit.control = fit.control)
 		result[['p2']]<- 1 - result[['p3']] - result[['p2']]				
 	}
 	
 	return(result)
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.1,0.2,0.7,0,1,2,1,100)
+#beta.vector<- rmixednorm(0.1,0.2,0.7,0,1,2,1,1000)
 #m.step3(
-#		responsibility3(c(p1=0.1, p2=0.7, p3=0.2, mu=0, A=0.2, B=2, C=0.2), beta.vector, generateMixtureControl()),
-#		constrained=FALSE, 
+#		responsibility3(c(p1=0.1, p2=0.2, p3=0.7, mu=0, A=0.2, B=2, C=0.2), beta.vector, generateMixtureControl()),
+#		constrained=TRUE, 
 #		beta.vector, 
 #		generateMixtureControl())
 	
@@ -544,7 +546,11 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 		
 		if(all(round(resps[['resp3']], roundTolerance)==0)){
 			stop('Fix estimation when all resp3 are zero')
-			#return( grand.finale.em9(p1=p1.new, p2 = p2.new, p3= 0, mu=NA, A = A.new, B = B.new, C = NA, rawData = beta.vector, control = fit.control, null.estimation = null.estimation, n=n))			
+			## TODO: A) Fix estimation when all resp3 are zero.
+			# There are only two components:			
+			# Call iterate2MixtureFitFast
+			
+			# Note: this solution does not allow to estimate 3 componets once resps3 have vanished.
 		}
 		
 		## Calculate new parameter values:
@@ -562,8 +568,12 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 	return(c(new.params, likelihood=likeNew))	
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.1,0.2,0.7,1,1,2,1,100)
-#iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = FALSE, generateMixtureControl())
+beta.vector<- rmixednorm(0.7,0.3,0,0,1,2,1,100)
+FPF:::iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = FALSE, generateMixtureControl())
+
+## TODO: A) Fix constrained optimization
+FPF:::iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = TRUE, generateMixtureControl())
+
 
 
 
