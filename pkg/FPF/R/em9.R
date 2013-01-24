@@ -99,7 +99,7 @@ checkParams<- function(params, n, fit.control){
 	if(isTRUE(all(sapply(params, is.numeric)))){
 		ok<- isTRUE(with(as.list(params),{					
 					p1 >= 0 && p1<=1 && p2 >= 0 && p2<=1 && p3 >= 0 && p3<=1 &&	A > 0 && B>0 && C>0 && 
-							p3 <= p3Bound(mu, A, B, n, fit.control) 
+							p3 <= p3Bound(mu, A, B, C, n, fit.control) 
 				}))		
 	}	
 	return(ok)
@@ -146,6 +146,7 @@ generateHybridParams<- function(resolution, moments, fit.control, n){
 }
 ## Testing:
 #generateHybridParams(resolution = 10, c(m1=1, m2=2, m3=1, m4=0) , generateMixtureControl(), n=100)
+## FIXME: Not working?
 
 
 
@@ -336,6 +337,8 @@ initialize3MixtureFitFast<- function(beta.vector, fit.control){
 
 # *Non* Null Responsability function:
 responsibility3<- function(params, beta.vector, fit.control){
+	
+	
 	outer.result<- with(as.list(params), {
 				expo1<- -0.5 * beta.vector^2 / A
 				expo1[is.na(expo1)]<- fit.control$numericThresh
@@ -388,6 +391,7 @@ responsibility3<- function(params, beta.vector, fit.control){
 #beta.vector<- rmixednorm(0.1, 0.2, 0.7, 1, 1, 2, 1, 100)
 #responsibility3(c(p1=0.1, p2=0.2, p3=0.7, mu=1, A=1, B=1, C=1), beta.vector, generateMixtureControl())
 #responsibility3(c(p1=0.8, p2=0.2, p3=0, mu=1, A=1, B=1, C=1), beta.vector, generateMixtureControl())
+#table(unlist(responsibility3(c(p1=0.8, p2=0.2, p3=0, mu=1, A=1, B=1, C=1), beta.vector, generateMixtureControl()))<0)
 
 
 
@@ -452,7 +456,9 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 	
 	
 	# Deal with constrained optimization (just improve, no need to find optimum)
-	if(constrained){		
+	if(constrained){
+		
+		
 		constrained.target.function<- function(args){			
 			p1<- inv.logit(args[['logit.p1']]) 
 			mu<- args[['mu']] 
@@ -463,10 +469,10 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 			# Here is the difference with past constraint functions:
 			expo<- exponentialConstraint(mu,A,B,C,n)
 			
-			result<- -99999999
+			result<- -1e15
 			
 			# Make sure constraint on p1 is enforced during initialization and iteration
-			if(log(p1) > expo || log(p1) < 0 ) return(result)			
+			if(is.nan(args[['logit.p1']]) || is.infinite(args[['logit.p1']]) || log(p1) > expo    ) return(result)			
 			
 			value<- c(-0.5*n*log(2*pi)-
 							0.5*log(A)*T0.1 + 	log(p1)*T0.1 -	0.5/A * T2.1 -
@@ -481,7 +487,8 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 		# Initialization values for optimization:
 		init.par<- with(as.list(result), list(logit.p1=logit(p1), mu=mu, log.A=log(A), log.B=log(B), log.C=log(C))   )
 		
-		## Actual optimization:
+		## Actual optimization:		
+		## TODO: A) Deal initialization values that return -Inf!
 		optim.result<- optim(
 				par=init.par,		
 				fn=constrained.target.function,				
@@ -500,9 +507,9 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 	return(result)
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.1,0.2,0.7,0,1,2,1,1000)
+#beta.vector<- rmixednorm(0.5,0.3,0.2,1,1,2,1,10000)
 #m.step3(
-#		responsibility3(c(p1=0.1, p2=0.2, p3=0.7, mu=0, A=0.2, B=2, C=0.2), beta.vector, generateMixtureControl()),
+#		responsibility3(c(p1=0.5, p2=0.3, p3=0.2, mu=1, A=0.2, B=2, C=2.0001), beta.vector, generateMixtureControl()),
 #		constrained=TRUE, 
 #		beta.vector, 
 #		generateMixtureControl())
@@ -534,7 +541,7 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 	## Initialization:
 	n<- length(beta.vector)
 	change<- 1
-	iterations<- 0
+	iterations<- 0L
 	percision.tolerance<- fit.control$iterationTolerance
 	roundTolerance<- fit.control$roundTolerance
 	mStep.iteration.limit <- fit.control$mStep.iteration.limit
@@ -545,11 +552,8 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 		resps<- responsibility3(new.params, beta.vector, fit.control)
 		
 		if(all(round(resps[['resp3']], roundTolerance)==0)){
-			stop('Fix estimation when all resp3 are zero')
-			## TODO: A) Fix estimation when all resp3 are zero.
 			# There are only two components:			
-			# Call iterate2MixtureFitFast
-			
+			return(iterate2MixtureFitFast(new.params, beta.vector, iteration.limit, fit.control))			
 			# Note: this solution does not allow to estimate 3 componets once resps3 have vanished.
 		}
 		
@@ -562,17 +566,16 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 		likeNew<- do.call(likelihood.c, c(new.params, list(beta.vector=beta.vector)) )
 		change<- abs(likeNew-likeOld)
 		
-		iterations<- iterations+1			
+		iterations<- iterations+1L			
 	}		
 	
 	return(c(new.params, likelihood=likeNew))	
 }
 ## Testing:
-beta.vector<- rmixednorm(0.7,0.3,0,0,1,2,1,100)
-FPF:::iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = FALSE, generateMixtureControl())
-
-## TODO: A) Fix constrained optimization
-FPF:::iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = TRUE, generateMixtureControl())
+#beta.vector<- rmixednorm(0.7,0.3,0,0,1,2,1,100)
+#iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = TRUE, generateMixtureControl())
+#load('debugging.Rdata')
+#iterate3MixtureFitFast(initial, beta.vector, 20, constrained = TRUE, generateMixtureControl())
 
 
 
@@ -593,6 +596,8 @@ check.location<- function(params, beta.vector, fit.control){
 	return(result)	
 }
 ## Testing:
+check.location(c(0.1, 0.3, 0.6,  1, 1, 2, 1), beta.vector, fit.control)
+
 
 
 
@@ -622,7 +627,6 @@ selectBestInitializtion<- function(start.values, beta.vector, fit.control){
 	# iterate a little
 	# keep end values
 	
-	
 	end.values<- t(apply(start.values, 1, check.location, beta.vector, fit.control))
 	if(ncol(end.values)==1L) { end.values<- t(end.values) }
 	
@@ -638,8 +642,8 @@ selectBestInitializtion<- function(start.values, beta.vector, fit.control){
 	
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.1,0.2,0.7,1,1,2,1,100)
-#selectBestInitializtion(t(as.matrix(c(p1=0.1,p2=0.3,p3=0.7, mu=1,A=1,B=2,C=1), byrow=TRUE)), beta.vector, generateMixtureControl() )
+#beta.vector<- FPF:::rmixednorm(0.1,0.2,0.7,1,1,2,1,100)
+selectBestInitializtion(t(as.matrix(c(p1=0.1,p2=0.3,p3=0.7, mu=1,A=1,B=2,C=1), byrow=TRUE)), beta.vector, generateMixtureControl() )
 
 
 
@@ -693,7 +697,8 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	return(temp.result)		
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.88, 0.12, 0, 0, 0.5, 1, 0.1, 10000)
+## FIXME: Constrained estimation not working.
+#hist(beta.vector<- rmixednorm(0.5, 0.2, 0.3, 2, 0.5, 0.2, 0.2, 1000))
 #round(pointWise3MixtureFitFast(beta.vector, generateMixtureControl()),2)
 
 
