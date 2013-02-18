@@ -146,7 +146,6 @@ generateHybridParams<- function(resolution, moments, fit.control, n){
 }
 ## Testing:
 #generateHybridParams(resolution = 10, c(m1=1, m2=2, m3=1, m4=0) , generateMixtureControl(), n=100)
-## FIXME: Not working?
 
 
 
@@ -697,7 +696,6 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	return(temp.result)		
 }
 ## Testing:
-## FIXME: Constrained estimation not working.
 #hist(beta.vector<- rmixednorm(0.5, 0.2, 0.3, 2, 0.5, 0.2, 0.2, 1000))
 #round(pointWise3MixtureFitFast(beta.vector, generateMixtureControl()),2)
 
@@ -918,6 +916,8 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 
 
 
+
+
 	
 	
 brainMixtureFitArray<- function(beta.array, fit.control){
@@ -975,7 +975,6 @@ brainMixtureFitArray<- function(beta.array, fit.control){
 
 
 
-
 brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	
 	## Verify input:
@@ -1010,14 +1009,11 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	return(fitted.list)	
 }
 ## Testing:
-#require(rosenblatt1)
-
+#require(FPF)
 #test.brain.fit<- brainMixtureFit(scans, generateMixtureControl())
-#	
-#x11()
 #createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
 #image(test.brain.fit[["p3.1"]]$getData()[,,26])
-##save(test.brain.fit, file="/home/johnros/workspace/MixtureRandomEffects/pkg/rosenblatt1/data/VinkDataFit.RData")
+#save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
 ##load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.RData")
 #lapply(test.brain.fit, function(x) x$getData()[20,20,20])
 

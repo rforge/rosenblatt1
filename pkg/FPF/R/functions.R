@@ -462,7 +462,8 @@ wrapImputeArray<- function(brain.mixture.fit.object){
 
 
 
-exponentialConstraint<- function(mu,A,B,C,n) -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B)))
+#exponentialConstraint<- function(mu,A,B,C,n) -abs(mu)* sqrt(n/(A+B)) * (1-max( min(A/C,C/A), min(B/C,C/B)))
+exponentialConstraint<- function(mu,A,B,C,n) - abs(mu)* sqrt(n/(A+B)) 
 ## Testing:
 exponentialConstraint(1,1,2,3,100)
 
