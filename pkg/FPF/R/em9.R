@@ -4,9 +4,9 @@
 ###############################################################################
 
 #rm(list=ls())
-#require(rosenblatt1)
-#dyn.load('/home/johnros/workspace/MixtureRandomEffects/trunk/likelihood.so')
 #require(tractor.base)
+dyn.load('/home/johnros/workspace/Local Zero Inflation/R code/likelihood.so')
+
 
 
 
@@ -94,16 +94,31 @@ generateArbitraryParams<- function(moments){
 #generateArbitraryParams(c(m1=1, m2=2, m3=1, m4=0))
 
 
+
+
+
+
+# Checks if a parametre value satisfies constraints
 checkParams<- function(params, n, fit.control){
+	## Verification:
+	stopifnot(!is.null(names(params)))
+	
+	## Body:	
 	ok<- FALSE
 	if(isTRUE(all(sapply(params, is.numeric)))){
 		ok<- isTRUE(with(as.list(params),{					
-					p1 >= 0 && p1<=1 && p2 >= 0 && p2<=1 && p3 >= 0 && p3<=1 &&	A > 0 && B>0 && C>0 && 
-							p3 <= p3Bound(mu, A, B, C, n, fit.control) 
+					p1 >= 0 && p1<=1 && p2 >= 0 && p2<=1 && p3 >= 0 && p3<=1 &&	A > 0 && B>0 && C>0 && checkBound(p3, mu, A, B, C, n, fit.control) 
 				}))		
 	}	
 	return(ok)
 }
+## Testing:
+#checkParams(c(p1=0.2,p2=0.2,p3=0.6, mu=1, A=1, B=2, C=1), 60, generateMixtureControl())
+
+
+
+
+
 
 
 
@@ -145,7 +160,7 @@ generateHybridParams<- function(resolution, moments, fit.control, n){
 	return(result)
 }
 ## Testing:
-#generateHybridParams(resolution = 10, c(m1=1, m2=2, m3=1, m4=0) , generateMixtureControl(), n=100)
+#generateHybridParams(resolution = 20, c(m1=1, m2=2, m3=1, m4=0) , generateMixtureControl(), n=100)
 
 
 
@@ -207,11 +222,11 @@ likelihood.c<- function(p1, p2, p3, mu, A, B, C, beta.vector,...){
 
 
 
-
+# Takes a mass of possible starting positions and verifies the are legal 
 makeStartValues<- function(arbitrary.params, random.params, hybrid.params, random.starts, beta.vector, fit.control){
 	# Combine random and hybrid starting points:
 	n<- length(beta.vector)
-	temp.start.values<- rbind(arbitrary.params, random.params, hybrid.params)
+	temp.start.values<- rbind(arbitrary.params, random.params, hybrid.params, deparse.level = 0)
 	ok.rows<- apply(temp.start.values, 1, checkParams, n, fit.control)
 	start.values<- temp.start.values[ok.rows,]
 	
@@ -280,7 +295,7 @@ arrangeVariances<- function(params){
 
 
 
-#replaces initializeEM9:
+## TODO: A) Initialize around p3=0 to deal with identification problem.
 initialize3MixtureFitFast<- function(beta.vector, fit.control){
 	comparePrecision<- fit.control$roundTolerance
 	thresh<- fit.control$numericThresh
@@ -424,7 +439,7 @@ inv.logit<- function(x) {
 
 
 # Maximization step:
-m.step3<-function(resps, constrained, beta.vector, fit.control){
+m.step3<-function(resps, beta.vector, fit.control){
 	## Initialization:
 	variance.bound<- fit.control$variance.bound
 	mStep.iteration.limit<- fit.control$mStep.iteration.limit
@@ -452,64 +467,12 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 	result[['B']]<- min(T2.2 / T0.2, variance.bound)
 	result[['C']]<- min(max(result[['A']], T2.3 / T0.3 - result[['mu']]^2), variance.bound)			
 	
-	
-	
-	# Deal with constrained optimization (just improve, no need to find optimum)
-	if(constrained){
-		
-		
-		constrained.target.function<- function(args){			
-			p1<- inv.logit(args[['logit.p1']]) 
-			mu<- args[['mu']] 
-			A<- exp(args[['log.A']]) 
-			B<- exp(args[['log.B']]) 
-			C<- exp(args[['log.C']])
-						
-			# Here is the difference with past constraint functions:
-			expo<- exponentialConstraint(mu,A,B,C,n)
-			
-			result<- -1e15
-			
-			# Make sure constraint on p1 is enforced during initialization and iteration
-			if(is.nan(args[['logit.p1']]) || is.infinite(args[['logit.p1']]) || log(p1) > expo    ) return(result)			
-			
-			value<- c(-0.5*n*log(2*pi)-
-							0.5*log(A)*T0.1 + 	log(p1)*T0.1 -	0.5/A * T2.1 -
-							0.5*log(B)*T0.2 + 	log(exp(expo)-p1)*T0.2 - 	0.5/B * T2.2 -
-							0.5*log(C)*T0.3 + 	log(1-exp(expo))*T0.3 - 0.5/C*(T2.3 + mu^2*T0.3 - 2*mu*T1.3))			
-			
-			if( isTRUE(!is.na(value) && !is.infinite(value)) ) result<- value	
-			
-			return(result)
-		}
-										
-		# Initialization values for optimization:
-		init.par<- with(as.list(result), list(logit.p1=logit(p1), mu=mu, log.A=log(A), log.B=log(B), log.C=log(C))   )
-		
-		## Actual optimization:		
-		## TODO: A) Deal initialization values that return -Inf!
-		optim.result<- optim(
-				par=init.par,		
-				fn=constrained.target.function,				
-				control=list(fnscale=-1, maxit=mStep.iteration.limit ), method='Nelder-Mead')		
-		
-		
-		result[['mu']]<- optim.result$par[['mu']]
-		result[['A']]<- exp(optim.result$par[['log.A']])
-		result[['B']]<- exp(optim.result$par[['log.B']])
-		result[['C']]<- exp(optim.result$par[['log.C']])
-		result[['p1']]<- inv.logit(optim.result$par[['logit.p1']])
-		result[['p3']]<- p3Bound(mu=result[['mu']], A=result[['A']], B=result[['B']], C=result[['C']], n=n, fit.control = fit.control)
-		result[['p2']]<- 1 - result[['p3']] - result[['p2']]				
-	}
-	
 	return(result)
 }
 ## Testing:
 #beta.vector<- rmixednorm(0.5,0.3,0.2,1,1,2,1,10000)
 #m.step3(
 #		responsibility3(c(p1=0.5, p2=0.3, p3=0.2, mu=1, A=0.2, B=2, C=2.0001), beta.vector, generateMixtureControl()),
-#		constrained=TRUE, 
 #		beta.vector, 
 #		generateMixtureControl())
 	
@@ -534,7 +497,7 @@ m.step3<-function(resps, constrained, beta.vector, fit.control){
 
 # replaces iterate.em9
 # returns a vector of parameter values OR NAs if it did not converge
-iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, constrained, fit.control){
+iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, fit.control){
 	# Assumes beta.vactor has no NAs
 	
 	## Initialization:
@@ -559,7 +522,7 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 		## Calculate new parameter values:
 		old.params<- new.params		
 		
-		new.params<- m.step3(resps, constrained, beta.vector, fit.control)
+		new.params<- m.step3(resps, beta.vector, fit.control)
 		
 		likeOld<- do.call(likelihood.c, c(old.params, list(beta.vector=beta.vector)) )					
 		likeNew<- do.call(likelihood.c, c(new.params, list(beta.vector=beta.vector)) )
@@ -571,10 +534,9 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 	return(c(new.params, likelihood=likeNew))	
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.7,0.3,0,0,1,2,1,100)
-#iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, constrained = TRUE, generateMixtureControl())
-#load('debugging.Rdata')
-#iterate3MixtureFitFast(initial, beta.vector, 20, constrained = TRUE, generateMixtureControl())
+#require(FPF)
+#beta.vector<- FPF:::rmixednorm(0.7,0.3,0,0,1,2,1,100)
+#iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, generateMixtureControl())
 
 
 
@@ -582,21 +544,24 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 
 
 check.location<- function(params, beta.vector, fit.control){
+	stopifnot(!is.null(names(params)))
+	## Initialization:
 	result<- rep(NA, length(params))
-	names(result)<- names(params)	
+	names(result)<- names(params)
+	
 	try(
-			result<- iterate3MixtureFitFast(
+			result<-iterate3MixtureFitFast(
 					initial.params=params, 
 					beta.vector = beta.vector, 
 					fit.control = fit.control, 
-					iteration.limit = 5, # number of iterations before choosing initialization point 
-					constrained = FALSE)
+					iteration.limit = 5) # number of iterations before choosing initialization point					
 			, silent=TRUE)
 	return(result)	
 }
 ## Testing:
-check.location(c(0.1, 0.3, 0.6,  1, 1, 2, 1), beta.vector, fit.control)
-
+#beta.vector<- FPF:::rmixednorm(0.7,0.3,0,0,1,2,1,100)
+#FPF:::check.location(c(p1=0.1, p2=0.3, p3=0.6, mu= 1, A=1, B=2, C=1), beta.vector, generateMixtureControl() )
+#FPF:::iterate3MixtureFitFast(initial.params=c(p1=0.1, p2=0.3, p3=0.6, mu= 1, A=1, B=2, C=1), beta.vector = beta.vector, fit.control = generateMixtureControl(), iteration.limit = 5)
 
 
 
@@ -641,8 +606,8 @@ selectBestInitializtion<- function(start.values, beta.vector, fit.control){
 	
 }
 ## Testing:
-#beta.vector<- FPF:::rmixednorm(0.1,0.2,0.7,1,1,2,1,100)
-selectBestInitializtion(t(as.matrix(c(p1=0.1,p2=0.3,p3=0.7, mu=1,A=1,B=2,C=1), byrow=TRUE)), beta.vector, generateMixtureControl() )
+#beta.vector<- rmixednorm(0.1,0.2,0.7,1,1,2,1,100)
+#FPF:::selectBestInitializtion(t(as.matrix(c(p1=0.1,p2=0.3,p3=0.7, mu=1,A=1,B=2,C=1), byrow=TRUE)), beta.vector, generateMixtureControl() )
 
 
 
@@ -659,7 +624,6 @@ selectBestInitializtion(t(as.matrix(c(p1=0.1,p2=0.3,p3=0.7, mu=1,A=1,B=2,C=1), b
 
 
 
-# Replace pointWise3MixtureFit()
 pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	# beta.vector is assumed to have no NAs.
 	
@@ -674,30 +638,43 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	temp.result<-iterate3MixtureFitFast(
 			initial.params=initial, 
 			beta.vector=beta.vector,			 
-			iteration.limit=fit.control$iteration.limit, 
-			constrained = FALSE,
+			iteration.limit=fit.control$iteration.limit,			
 			fit.control = fit.control)
 	
 	
 	
 	# If the bound on p3 is effective:
-	p3.bound<- p3Bound(mu=temp.result[['mu']], A=temp.result[['A']], B=temp.result[['B']], C=temp.result[['C']],  n=n, fit.control=fit.control)
-	if(temp.result[['p3']] > p3.bound ){		
+	## FIXME: Why are NaN values of A generated?
+	#p3Bound(mu=temp.result[['mu']], A=temp.result[['A']], B=temp.result[['B']], C=temp.result[['C']],  n=n, fit.control=fit.control)
+	allowed.p3 <- checkBound(temp.result[['p3']], mu=temp.result[['mu']], A=temp.result[['A']], B=temp.result[['B']], C=temp.result[['C']],  n=n, fit.control=fit.control)
+	if(!allowed.p3){
+		## TODO: A) Action if p3 in forbidden area.
 		
-		temp.result<- iterate3MixtureFitFast(
+		# Fix p3=0, mu=0, 
+		# Iterate 2 components.		
+		
+		temp.result<- iterate2MixtureFitFast(
 				initial.params=initial,		
 				beta.vector=beta.vector,				 
 				iteration.limit=fit.control$iteration.limit, 
-				constrained = TRUE,
 				fit.control = fit.control)
+		temp.result$p3 <- 0
+		temp.result$mu <- NaN
+		
 	}	
 	
 	
 	return(temp.result)		
 }
 ## Testing:
-#hist(beta.vector<- rmixednorm(0.5, 0.2, 0.3, 2, 0.5, 0.2, 0.2, 1000))
-#round(pointWise3MixtureFitFast(beta.vector, generateMixtureControl()),2)
+# Unconstrained case:
+hist(beta.vector<- rmixednorm(0.5, 0.2, 0.3, 2, 0.5, 0.2, 0.2, 1000))
+round(pointWise3MixtureFitFast(beta.vector, generateMixtureControl()),2)
+
+# Constrained case:
+##FIXME: Estimation in the bounded case: Constraint barely effective!!!
+beta.vector<- rmixednorm(0.5, 0.5, 0, 2, 0.5, 0.2, 0.2, 20)
+pointWise3MixtureFitFast(beta.vector, generateMixtureControl())
 
 
 
@@ -724,7 +701,7 @@ responsibility2<- function(params, beta.vector, fit.control){
 
 # like m.step3:	
 m.step2<- function(resps, beta.vector, fit.control){
-	result<- m.step3(resps, constrained = FALSE, beta.vector, fit.control)
+	result<- m.step3(resps, beta.vector, fit.control)
 	if(round(result[['p3']],fit.control$roundTolerance)==0)  result[['p3']]<- 0
 	else stop("p3 under the null is not 0 (returned by m.step3)")
 	return(result)
@@ -795,7 +772,7 @@ iterate2MixtureFitFast<- function(mixture3result, beta.vector, iteration.limit, 
 	return(c(new.params, likelihood=likeNew))	
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.1,0.2,0.7,1,1,2,1,100)
+#beta.vector<- rmixednorm(0.7,0.3,0,1,1,2,1,100)
 #iterate2MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, generateMixtureControl())
 
 
@@ -904,7 +881,6 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 	return(output)
 }
 ## Testing:
-#beta.vector<- rosenblatt1:::rmixednorm(0.4,0.4,0.2,1,1,1,1, 50)
 #beta.vector<- rmixednorm(0.4,0.4,0.2,1,1,1,1, 50)
 #pointWiseMixtureFitFast(beta.vector, generateMixtureControl())
 #data(VinkData)
