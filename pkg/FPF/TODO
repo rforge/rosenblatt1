@@ -1,5 +1,5 @@
-Continue analysis of toy example and re-estimate brain data. 
+## Change constraint to the Donoho-Jin detection region. 
+# Verify on Toy-Example data. 
 
-Update accompanying data files:
 
-Update paper: figures ##, discussion in sections ##
+## Deprecate the use of NewMriImageFromFile as instructed in Jon's mail.
