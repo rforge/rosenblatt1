@@ -1,5 +1,9 @@
-## Change constraint to the Donoho-Jin detection region. 
-# Verify on Toy-Example data. 
+## Change constraint to the Donoho-Jin *estimation* region.
+# Verify on Toy-Example data.
+# Estimate on true data. 
+
+
+## Try the constraint suggested by Yoav: epsilon = exp(-mu^2* n^(1/2)/ 2)
 
 
 ## Deprecate the use of NewMriImageFromFile as instructed in Jon's mail.

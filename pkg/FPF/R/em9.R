@@ -1,4 +1,3 @@
-# TODO: B) Test solver on more data. 
 # 
 # Author: johnros
 ###############################################################################
@@ -76,11 +75,11 @@ generateRandomParams<- function(random.starts, moments){
 
 
 
-
+## TODO: B) Initialize close to p3=0 to deal with identifiability AND empty initializations.
 generateArbitraryParams<- function(moments){
 	result<-with(as.list(moments),{ 
-				p1<- 0.2 
-				p2<- 0.2 
+				p1<- 0.4 
+				p2<- 0.4 
 				p3<- 1-p1-p2 
 				mu<- m1/p3 
 				A<- m2/p1 
@@ -107,13 +106,14 @@ checkParams<- function(params, n, fit.control){
 	ok<- FALSE
 	if(isTRUE(all(sapply(params, is.numeric)))){
 		ok<- isTRUE(with(as.list(params),{					
-					p1 >= 0 && p1<=1 && p2 >= 0 && p2<=1 && p3 >= 0 && p3<=1 &&	A > 0 && B>0 && C>0 && checkBound(p3, mu, A, B, C, n, fit.control) 
+					p1 >= 0 && p1<=1 && p2 >= 0 && p2<=1 && p3 >= 0 && p3<=1 &&	A > 0 && B>0 && C>0 && checkBound(p1, p2, p3, mu, A, B, C, n, fit.control) 
 				}))		
 	}	
 	return(ok)
 }
 ## Testing:
-#checkParams(c(p1=0.2,p2=0.2,p3=0.6, mu=1, A=1, B=2, C=1), 60, generateMixtureControl())
+#checkParams(c(p1=0.2,p2=0.2,p3=0.6, mu=1, A=1, B=2, C=1), n=60, generateMixtureControl())
+#checkParams(c(p1=0.2,p2=0.7,p3=0.1, mu=1, A=1, B=2, C=1), n=60, generateMixtureControl())
 
 
 
@@ -223,13 +223,13 @@ likelihood.c<- function(p1, p2, p3, mu, A, B, C, beta.vector,...){
 
 
 # Takes a mass of possible starting positions and verifies the are legal 
-makeStartValues<- function(arbitrary.params, random.params, hybrid.params, random.starts, beta.vector, fit.control){
+makeStartValues<- function(temp.start.values, random.starts, beta.vector, fit.control){
 	# Combine random and hybrid starting points:
 	n<- length(beta.vector)
-	temp.start.values<- rbind(arbitrary.params, random.params, hybrid.params, deparse.level = 0)
 	ok.rows<- apply(temp.start.values, 1, checkParams, n, fit.control)
-	start.values<- temp.start.values[ok.rows,]
+	start.values<- temp.start.values[ok.rows,, drop=FALSE]
 	
+		
 	# Now keep only the best results:
 	if(nrow(start.values) > random.starts){
 		start.likelihoods <- as.numeric(apply(start.values, 1, function(x) {					
@@ -239,6 +239,7 @@ makeStartValues<- function(arbitrary.params, random.params, hybrid.params, rando
 		best.ind<- rank(start.likelihoods) > (length(start.likelihoods) - random.starts)
 		start.values<- start.values[best.ind, ]		
 	}	
+	
 	return(start.values)
 }
 ## Testing:
@@ -295,7 +296,7 @@ arrangeVariances<- function(params){
 
 
 
-## TODO: A) Initialize around p3=0 to deal with identification problem.
+## TODO: B) Initialize around p3=0 to deal with identification problem.
 initialize3MixtureFitFast<- function(beta.vector, fit.control){
 	comparePrecision<- fit.control$roundTolerance
 	thresh<- fit.control$numericThresh
@@ -325,7 +326,14 @@ initialize3MixtureFitFast<- function(beta.vector, fit.control){
 	
 	
 	# Combine all starting candidates and remove "illegal" options:
-	start.values<- makeStartValues(arbitrary.params, random.params, hybrid.params, random.starts = random.starts, beta.vector = beta.vector, fit.control)	
+	temp.start.values<- rbind(arbitrary.params, random.params, hybrid.params, deparse.level = 0)
+	start.values<- makeStartValues(temp.start.values, random.starts = random.starts, beta.vector = beta.vector, fit.control)
+	
+	# Deal with empty initialization set:
+	if(nrow(start.values)==0L){
+		temp.start.values<-generateRandomParams(random.starts=100, empirical.moments)
+		start.values<- makeStartValues(temp.start.values, random.starts = random.starts, beta.vector = beta.vector, fit.control)
+	}
 	
 	# Choose best starting value	
 	temp.result<- selectBestInitializtion(start.values=start.values, beta.vector, fit.control=fit.control)	
@@ -535,7 +543,7 @@ iterate3MixtureFitFast<- function(initial.params, beta.vector, iteration.limit, 
 }
 ## Testing:
 #require(FPF)
-#beta.vector<- FPF:::rmixednorm(0.7,0.3,0,0,1,2,1,100)
+#beta.vector<- rmixednorm(0.3,0.3,0.4,1,1,2,1,100)
 #iterate3MixtureFitFast(c(p1=0.7, p2=0.2, p3=0.1, mu=1, A=1, B=2, C=1), beta.vector, 20, generateMixtureControl())
 
 
@@ -643,23 +651,14 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	
 	
 	
-	# If the bound on p3 is effective:
-	## FIXME: Why are NaN values of A generated?
-	#p3Bound(mu=temp.result[['mu']], A=temp.result[['A']], B=temp.result[['B']], C=temp.result[['C']],  n=n, fit.control=fit.control)
-	allowed.p3 <- checkBound(temp.result[['p3']], mu=temp.result[['mu']], A=temp.result[['A']], B=temp.result[['B']], C=temp.result[['C']],  n=n, fit.control=fit.control)
+	# If the bound on p3 is effective:	
+	allowed.p3 <- checkBound(p1=temp.result[['p1']],  p2=temp.result[['p2']], temp.result[['p3']], mu=temp.result[['mu']], A=temp.result[['A']], B=temp.result[['B']], C=temp.result[['C']],  n=n, fit.control=fit.control)
 	if(!allowed.p3){
-		## TODO: A) Action if p3 in forbidden area.
-		
-		# Fix p3=0, mu=0, 
-		# Iterate 2 components.		
-		
 		temp.result<- iterate2MixtureFitFast(
-				initial.params=initial,		
+				mixture3result=initial,		
 				beta.vector=beta.vector,				 
 				iteration.limit=fit.control$iteration.limit, 
 				fit.control = fit.control)
-		temp.result$p3 <- 0
-		temp.result$mu <- NaN
 		
 	}	
 	
@@ -667,14 +666,15 @@ pointWise3MixtureFitFast<- function(beta.vector, fit.control){
 	return(temp.result)		
 }
 ## Testing:
-# Unconstrained case:
-hist(beta.vector<- rmixednorm(0.5, 0.2, 0.3, 2, 0.5, 0.2, 0.2, 1000))
-round(pointWise3MixtureFitFast(beta.vector, generateMixtureControl()),2)
-
+#
 # Constrained case:
-##FIXME: Estimation in the bounded case: Constraint barely effective!!!
-beta.vector<- rmixednorm(0.5, 0.5, 0, 2, 0.5, 0.2, 0.2, 20)
-pointWise3MixtureFitFast(beta.vector, generateMixtureControl())
+#beta.vector<- rmixednorm(0.5, 0.5, 0, 2, 0.5, 0.1, 0.2, 10)
+#pointWise3MixtureFitFast(beta.vector, generateMixtureControl())
+#
+# Unconstrained case:
+#hist(beta.vector<- rmixednorm(0.5, 0.2, 0.3, 2, 0.5, 0.2, 0.2, 1000))
+#round(pointWise3MixtureFitFast(beta.vector, generateMixtureControl()),2)
+
 
 
 
@@ -881,9 +881,15 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 	return(output)
 }
 ## Testing:
-#beta.vector<- rmixednorm(0.4,0.4,0.2,1,1,1,1, 50)
-#pointWiseMixtureFitFast(beta.vector, generateMixtureControl())
-#data(VinkData)
+## Simulated data:
+#params <- c(p1=0.1, p2=0.3, p3=0.6, mu=1, A=0.2, B=0.5, C=0.2)
+#n <- 100
+#checkParams(params, n, generateMixtureControl())
+#beta.vector<- do.call(rmixednorm, as.list(c(params, draws=n)) )
+#round(pointWiseMixtureFitFast(beta.vector, generateMixtureControl()),2)
+#
+## Real data:
+#load('/home/johnros/workspace/FPF/pkg/FPF/data/VinkData.RData')
 #pointWiseMixtureFitFast(MriImage2Array(scans)[20,20,20,], generateMixtureControl())
 
 

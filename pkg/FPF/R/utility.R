@@ -280,22 +280,26 @@ wrapImputeArray<- function(brain.mixture.fit.object){
 
 
 
-p3Bound<-function(mu, A, B, C, n, fit.control){
-	stopifnot(is.numeric(c(mu, A, B, C, n)))
+p3Bound<-function(p1, p2, mu, A, B, C, n, fit.control){
+	stopifnot(is.numeric(c(p1, p2, mu, A, B, C, n)))
 	
 	result<- 0
 	expo<- fit.control$numericThresh
 	
 	try({
-				expo<- -( mu^2 / (2 * max(A,B)) )
+				expo<- -( mu^2 / (2 * (p1*A+p2*B)) )
 			}, silent=TRUE)
 	
-	if(!is.na(expo)) result<-   exp(expo) / sqrt(n)	
+	# Detection version: 
+	# if(!is.na(expo)) result<-   exp(expo) / sqrt(n)
+	
+	#Estimation version:
+	if(!is.na(expo)) result<-   exp(expo) 
 	
 	return(result)
 }
 ## Test:
-#p3Bound(1,1,2,1.01,67, generateMixtureControl())
+#p3Bound(0.2, 0.6, 1,1,2,1.01,67, generateMixtureControl())
 
 
 
@@ -303,13 +307,13 @@ p3Bound<-function(mu, A, B, C, n, fit.control){
 
 
 
-# Returns TRUE if p3 in *permissible* zone.
-checkBound <- function(p3,mu, A, B, C, n, fit.control){
-	p3 >= p3Bound(mu, A, B, C, n, fit.control)
+# Returns TRUE if p3 in **permissible** zone.
+checkBound <- function(p1, p2, p3,mu, A, B, C, n, fit.control){
+	p3 >= p3Bound(p1, p2, mu, A, B, C, n, fit.control)
 }
 ## Testing:
-#checkBound(0.2, 1, 1,2,1,60,generateMixtureControl())
-#checkBound(0.01, 1, 1,2,1,60,generateMixtureControl())
+#checkBound(0.2, 0.2, 0.6, 1, 1,2,1,60,generateMixtureControl())
+#checkBound(p1= 0.9, p2= 0.09, p3= 0.01, mu= 1, A=1, B=2, C=1, n=60,generateMixtureControl())
 
 
 

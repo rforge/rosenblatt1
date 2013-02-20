@@ -1,13 +1,15 @@
 Package: FPF
 Type: Package
 Title: fMRI Prevalence Finder 
-Version: 0.51
+Version: 0.53
 Date: 2012-08-19
 Author: Jonathan Rosenblatt
 Maintainer: Jonathan Rosenblatt <john.ros@gmail.com>
 Description: Takes coefficient maps of fMRI group studies and returns maps of the estimates of the random-effect mixture distribution.
 License: GPL-2
-Collate: 'functions.R'
- 'em9.R'
+Collate: 
+	'utility.R'
+	'mixtools.R'
+ 	'em9.R'
 Depends: tractor.base
 Suggests: mixtools 
