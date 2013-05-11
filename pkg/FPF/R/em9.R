@@ -4,7 +4,7 @@
 
 #rm(list=ls())
 #require(tractor.base)
-dyn.load('/home/johnros/workspace/Local Zero Inflation/R code/likelihood.so')
+#dyn.load('/home/johnros/workspace/Local Zero Inflation/R code/likelihood.so')
 
 
 
