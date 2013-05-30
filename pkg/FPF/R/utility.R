@@ -291,10 +291,10 @@ p3Bound<-function(p1, p2, mu, A, B, C, n, fit.control){
 			}, silent=TRUE)
 	
 	# Detection version: 
-	# if(!is.na(expo)) result<-   exp(expo) / sqrt(n)
+	 if(!is.na(expo)) result<-   exp(expo) / sqrt(n)
 	
-	#Estimation version:
-	if(!is.na(expo)) result<-   exp(expo) 
+	# Clasification version ("estimation" in Donoho & Jin):
+	#if(!is.na(expo)) result<-   exp(expo) 
 	
 	return(result)
 }

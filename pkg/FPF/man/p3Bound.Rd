@@ -2,15 +2,21 @@
 \alias{p3Bound}
 \title{Checks if constraint on p3 is met?}
 \usage{
-  p3Bound(mu, A, B, n, fit.control)
+  p3Bound(p1, p2, mu, A, B, C, n, fit.control)
 }
 \arguments{
 
+  \item{p1}{Value of mixture parameter.}
+  
+  \item{p2}{Value of mixture parameter.}
+  
   \item{mu}{Value of mixture parameter.}
 
   \item{A}{Value of mixture parameter.}
 
   \item{B}{Value of mixture parameter.}
+  
+  \item{C}{Value of mixture parameter.}
 
   \item{n}{Value of mixture parameter.}
 

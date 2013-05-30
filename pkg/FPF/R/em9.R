@@ -846,7 +846,6 @@ fit2result<- function(mixture.fit, result, model=c("full","null")){
 
 
 
-
 # Fit voxel-wise null and full mixture 
 pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 	# Verify intput:
@@ -935,7 +934,7 @@ brainMixtureFitArray<- function(beta.array, fit.control){
 	return(imputed.fit)
 }
 ## Testing:
-#load('/home/johnros/workspace/MixtureRandomEffects/pkg/rosenblatt1/data/VinkData.RData')
+#load('~/workspace/FPF/pkg/FPF/data/VinkData.RData')
 #fit.array<- brainMixtureFitArray(MriImage2Array(scans)[20:22,20:22,20:22,], generateMixtureControl())	
 
 
@@ -995,8 +994,8 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 #test.brain.fit<- brainMixtureFit(scans, generateMixtureControl())
 #createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
 #image(test.brain.fit[["p3.1"]]$getData()[,,26])
-#save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
-##load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.RData")
+##save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
+#load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.RData")
 #lapply(test.brain.fit, function(x) x$getData()[20,20,20])
 
 

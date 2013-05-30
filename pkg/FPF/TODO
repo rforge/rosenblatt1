@@ -1,6 +1,8 @@
 ## Change constraint to the Donoho-Jin *estimation* region.
-# Verify on Toy-Example data.
-# Estimate on true data. 
+# done: Verify on Toy-Example data.
+# done:Estimate on true data.
+# Reproduce plots and data in the paper using new package.
+# "Check if true brain converges to {0,1} as in toy example. 
 
 
 ## Try the constraint suggested by Yoav: epsilon = exp(-mu^2* n^(1/2)/ 2)
