@@ -110,7 +110,8 @@ generateMixtureControl<- function(
 		Resolution= 20,
 		mStep.iteration.limit=5,
 		variance.bound=10,
-		iterationTolerance=1e-4
+		iterationTolerance=1e-4,
+    seed=333
 ){	
 	return(list(
 					numericThresh= numericThresh, 	
@@ -122,7 +123,8 @@ generateMixtureControl<- function(
 					Resolution=Resolution,
 					mStep.iteration.limit=mStep.iteration.limit,
 					variance.bound=variance.bound,
-					iterationTolerance=iterationTolerance
+					iterationTolerance=iterationTolerance,
+          seed=seed
 			))	
 }
 

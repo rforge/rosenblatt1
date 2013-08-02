@@ -854,7 +854,8 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 	
 	# Initialize output:
 	if(!missing(progress)) { setTxtProgressBar(progress, getTxtProgressBar(progress)+1)	}
-	
+	set.seed(fit.control$seed)
+  
 	output<-initializeOutput()
 	
 	n<- sum(!is.na(beta.vector))
@@ -904,7 +905,6 @@ pointWiseMixtureFitFast<- function(beta.vector, fit.control, progress=NULL){
 brainMixtureFitArray<- function(beta.array, fit.control){
 	
 	dims<-dim(beta.array)
-	cat('This may take several minutes. Why not load the fortunes package and enjoy those quotes?\n')
 	progress.bar<- txtProgressBar(min=0, max=prod(dims[-4]), style=1)
 	warn <- options(warn = 2)
 	
@@ -973,14 +973,16 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	beta.array<- MriImage2Array(MRImage.list)	
 			
 	## Fit	
-	imputed.fit<- brainMixtureFitArray(beta.array, fit.control)
+  # Note: Three seperate estimations are used so the re-run correlation is 0.88
+  
+  imputed.fit<- brainMixtureFitArray(beta.array, fit.control)
 	
 	## Finilizing
 	dim.names<- dimnames(imputed.fit)
 	fitted.list<- list()
 	meta<- newMriImageMetadataFromTemplate(MRImage.list[[1]]$getMetadata(), datatype=getDataTypeByNiftiCode(16))
 	for(param in dim.names[[1]]){
-		fitted.list[[param]]<- newMriImageWithData(imputed.fit[param,,,], meta)
+	  fitted.list[[param]]<- newMriImageWithData(imputed.fit[param,,,], meta)
 	}
 	
 	
@@ -990,8 +992,9 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	return(fitted.list)	
 }
 ## Testing:
-#require(FPF)
-#test.brain.fit<- brainMixtureFit(scans, generateMixtureControl())
+# require(FPF)
+# data(VinkData)
+# test.brain.fit<- brainMixtureFit(scans, generateMixtureControl())
 #createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
 #image(test.brain.fit[["p3.1"]]$getData()[,,26])
 ##save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
