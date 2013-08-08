@@ -15,3 +15,4 @@ LaTeX: pdfLaTeX
 BuildType: Package
 PackagePath: pkg/FPF
 PackageInstallArgs: --no-multiarch
+PackageBuildArgs: --resave-data

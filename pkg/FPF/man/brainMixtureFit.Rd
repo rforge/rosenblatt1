@@ -49,7 +49,6 @@
 	test.brain.fit<- brainMixtureFit(scans, fit.control = generateMixtureControl())
 }
 data(VinkDataFit)
-createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
 image(test.brain.fit[["p3.1"]]$getData()[,,26])
 lapply(test.brain.fit, function(x) x$getData()[20,20,20])
 }

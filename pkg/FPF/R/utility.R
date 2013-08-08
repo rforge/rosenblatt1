@@ -497,24 +497,20 @@ computeMask<- function(MRImage.list, test.statistic="Wilcoxon", FDR.level=0.1, f
 	output<- array(p.adjust(pvals.array, method = 'BH')<= FDR.level, dim=dims[1:3])
 	
 	
-	
-	
-	
 	## Finialize:
-	meta<- newMriImageMetadataFromTemplate(MRImage.list[[1]]$getMetadata(), datatype=getDataTypeByNiftiCode(2))
-	mri.mask<- newMriImageWithData(output, meta)
+	mri.mask<- newMriImageWithData(output, MRImage.list[[1]])
 	return(mri.mask)
 	
 	
 }
 ## Testing:
-#require(tractor.base)
-#setwd('~/Projects/MRI/Data/Vink/data_vink_2010/cons_no_smooth')
-#files<- grep("con.*img", list.files(), value=T)
-#files<- sub('\\.img', "", files)
-#scans<- importBetaMriImages(files, fileType='NIFTI')
-#test.brain.mask<- computeMask(MRImage.list=scans, method = "T", fit.control = generateMixtureControl())
-#createSliceGraphic(test.brain.mask, z=30)
+# require(tractor.base)
+# setwd('~/Projects/MRI/Data/Vink/data_vink_2010/cons_no_smooth')
+# files<- grep("con.*img", list.files(), value=T)
+# files<- sub('\\.img', "", files)
+# scans<- importBetaMriImages(files, fileType='NIFTI')
+# test.brain.mask<- computeMask(MRImage.list=scans, fit.control = generateMixtureControl())
+# createSliceGraphic(test.brain.mask, z=30)
 
 
 

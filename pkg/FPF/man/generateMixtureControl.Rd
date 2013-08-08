@@ -8,7 +8,11 @@ Generates control object for fitting.
 A constructor function for the list of arguments needed by \code{\link{brainMixtureFit}}
 }
 \usage{
-ngenerateMixtureControl(numericThresh = -18, minObservations = 15, iteration.limit = 100, null.iteration.limit = 1000, roundTolerance = 15, RandomStarts = 5, Resolution = 20, mStep.iteration.limit = 5, variance.bound = 10, iterationTolerance = 1e-04)
+generateMixtureControl(numericThresh = -18, minObservations = 15, 
+  iteration.limit = 100, null.iteration.limit = 1000, roundTolerance = 15, 
+  RandomStarts = 5, Resolution = 20, mStep.iteration.limit = 5, 
+  variance.bound = 10, iterationTolerance = 1e-04, seed=333
+)
 }
 
 \arguments{
@@ -31,6 +35,8 @@ ngenerateMixtureControl(numericThresh = -18, minObservations = 15, iteration.lim
   \item{variance.bound}{Upper bound on the values of variance parameters}
   
   \item{iterationTolerance}{Magnitude of change required before convergence}
+  
+  \item{seed}{Fixed the seed of the number sequence for initialization}
 }
 \value{Returns a list with the above parameters.}
 

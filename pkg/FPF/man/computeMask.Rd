@@ -31,7 +31,8 @@
 
 \examples{
 data(VinkData)
-test.brain.mask<- computeMask(MRImage.list=scans, test.statistic = "Wilcoxon", fit.control=generateMixtureControl())
+test.brain.mask<- computeMask(MRImage.list=scans, test.statistic = "Wilcoxon", 
+  fit.control=generateMixtureControl())
 createSliceGraphic(test.brain.mask, z=30)
 }
 
