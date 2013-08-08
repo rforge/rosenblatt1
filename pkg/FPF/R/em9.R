@@ -995,10 +995,10 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 # require(FPF)
 # data(VinkData)
 # test.brain.fit<- brainMixtureFit(scans, generateMixtureControl())
-#createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
-#image(test.brain.fit[["p3.1"]]$getData()[,,26])
-##save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
-#load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.RData")
-#lapply(test.brain.fit, function(x) x$getData()[20,20,20])
+# createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
+# image(test.brain.fit[["p3.1"]]$getData()[,,26])
+## save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
+# load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.RData")
+# lapply(test.brain.fit, function(x) x$getData()[20,20,20])
 
 
