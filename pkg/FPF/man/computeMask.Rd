@@ -3,7 +3,8 @@
 \title{Computes rejection group mask}
 
 \usage{
-  computeMask(MRImage.list, test.statistic = "Wilcoxon", FDR.level = 0.1, fit.control=generateMixtureControl())
+  computeMask(MRImage.list, test.statistic = "Wilcoxon", 
+  FDR.level = 0.1, fit.control=generateMixtureControl())
 }
 
 \arguments{

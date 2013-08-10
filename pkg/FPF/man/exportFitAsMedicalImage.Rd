@@ -2,8 +2,8 @@
 \alias{exportFitAsMedicalImage}
 \title{Export all estimated parameters to imaging files}
 \usage{
-  exportFitAsMedicalImage(mixture.fit.object, format,
-    file.heading)
+  exportFitAsMedicalImage(mixture.fit.object, 
+  format, file.heading)
 }
 \arguments{
   \item{mixture.fit.object}{Output of
