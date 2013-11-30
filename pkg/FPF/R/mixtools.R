@@ -298,9 +298,8 @@ brainMixtureFit2<- function(MRImage.list, fit.control= generateMixtureControl())
 	## Finilizing
 	dim.names<- dimnames(first.fit)
 	fitted.list<- list()
-	meta<- newMriImageMetadataFromTemplate(MRImage.list[[1]]$getMetadata(), datatype=getDataTypeByNiftiCode(16))
 	for(param in dim.names[[1]]){
-		fitted.list[[param]]<- newMriImageWithData(imputed.fit[param,,,], meta)
+		fitted.list[[param]]<- newMriImageWithData(imputed.fit[param,,,], templateImage=MRImage.list[[1]])
 	}
 	
 	

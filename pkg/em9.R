@@ -982,10 +982,10 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 	## Finilizing
 	dim.names<- dimnames(imputed.fit1)
 	fitted.list<- list()
-	meta<- newMriImageMetadataFromTemplate(MRImage.list[[1]]$getMetadata(), datatype=getDataTypeByNiftiCode(16))
+	
 	for(param in dim.names[[1]]){
 	  .fit<- (imputed.fit1[param,,,]+imputed.fit1[param,,,]+imputed.fit1[param,,,])/3
-		fitted.list[[param]]<- newMriImageWithData(.fit, meta)
+		fitted.list[[param]]<- newMriImageWithData(.fit, templateImage=MRImage.list[[1]])
 	}
 	
 	

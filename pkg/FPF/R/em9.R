@@ -974,17 +974,14 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 			
 	## Fit	
   # Note: Three seperate estimations are used so the re-run correlation is 0.88
-  
   imputed.fit<- brainMixtureFitArray(beta.array, fit.control)
 	
 	## Finilizing
-	dim.names<- dimnames(imputed.fit)
+  dim.names<- dimnames(imputed.fit)
 	fitted.list<- list()
-	meta<- newMriImageMetadataFromTemplate(MRImage.list[[1]]$getMetadata(), datatype=getDataTypeByNiftiCode(16))
 	for(param in dim.names[[1]]){
-	  fitted.list[[param]]<- newMriImageWithData(imputed.fit[param,,,], meta)
+	  fitted.list[[param]]<- newMriImageWithData(imputed.fit[param,,,], templateImage=MRImage.list[[1]])
 	}
-	
 	
 	## Exit:
 	options(warn)
@@ -997,8 +994,8 @@ brainMixtureFit<- function(MRImage.list, fit.control= generateMixtureControl()){
 # test.brain.fit<- brainMixtureFit(scans, generateMixtureControl())
 # createSliceGraphic(test.brain.fit[["p3.1"]], z=26)
 # image(test.brain.fit[["p3.1"]]$getData()[,,26])
-## save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
+# # save(test.brain.fit, file="/home/johnros/workspace/FPF/pkg/FPF/data/VinkDataFit.RData")
 # load(file="/home/johnros/workspace/Mixture Random Effects/tmp/VinkData.RData")
 # lapply(test.brain.fit, function(x) x$getData()[20,20,20])
-
+# 
 
