@@ -1,10 +1,10 @@
 Package: FPF
 Type: Package
 Title: fMRI Prevalence Finder 
-Version: 0.55.0
-Date: 2012-08-19
+Version: 0.56.0
+Date: 2013-11-30
 Author: Jonathan Rosenblatt
-Maintainer: Jonathan Rosenblatt <john.ros@gmail.com>
+Maintainer: Jonathan Rosenblatt <john.ros.work@gmail.com>
 Description: Takes coefficient maps of fMRI group studies and returns maps of the estimates of the random-effect mixture distribution.
 License: GPL-2
 Collate: 
