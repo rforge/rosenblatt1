@@ -406,9 +406,6 @@ exportFitAsMedicalImage<- function(mixture.fit.object, format, file.heading){
 	
 	
 	## Initialize:
-	require(tractor.base)
-	
-	
 	params<- names(mixture.fit.object)	
 	for(param in params){
 		file.name<- paste(file.heading, "_", param, sep="")
