@@ -1,7 +1,7 @@
 Package: FPF
 Type: Package
 Title: fMRI Prevalence Finder 
-Version: 0.56.0
+Version: 0.56.1
 Date: 2013-11-30
 Author: Jonathan Rosenblatt
 Maintainer: Jonathan Rosenblatt <john.ros.work@gmail.com>
